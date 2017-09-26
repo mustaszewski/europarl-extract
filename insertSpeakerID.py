@@ -96,20 +96,6 @@ def preprocess_file(inputfile):
     print (line.strip())
     fileinput.close()
     ### end of function preprocess_file()
-    
-    
-def clean_corrupt_file_old():
-  corrupt_fn = re.compile(".+pl/ep-09-10-22-009.txt")
-  problematic_files = list(filter(corrupt_fn.match, file_list))
-  
-  if len(problematic_files) > 0:
-    for problematic_file in problematic_files:
-      problematic_file_temp = problematic_file + ".tmp"
-      call_iconv = "iconv -t UTF-8//IGNORE " + problematic_file + " > " + problematic_file_temp
-      os.system(call_iconv)
-      call_rm = "rm " + problematic_file + "| mv " +  problematic_file_temp + " " + problematic_file
-      os.system(call_rm)
-  ###
 
 # Function to get rid of non-utf-coded characters in file ep-09-10-22-009.txt
 def clean_corrupt_file():
@@ -128,16 +114,6 @@ def clean_corrupt_file():
       os.remove(src)
       os.rename(tmp, src)
   ### End of function clean_corrupt_file()
-
-
-  
-  
-
-
-
-
-#  with open(inputfile, 'rt', encoding='utf-8', errors='ignore') as fl: # flag errors='ignore' is used in order to prevent program terminating
-
 
 
 ######### END OF FUNCTION DEFINITIONS #########
