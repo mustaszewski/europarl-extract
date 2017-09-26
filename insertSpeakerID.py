@@ -14,7 +14,8 @@ import re
 import argparse
 import os
 import sys
-
+import codecs
+  
 def get_inputfile(path):
   if path.endswith('.txt'):
     file_list.append(path)
@@ -36,7 +37,7 @@ def get_inputfiles_from_folder(path):
 
 def disambiguate_IDs(inputfile):
   usedIDs = {}
-  for line in fileinput.FileInput(inputfile ,inplace=1):
+  for line in fileinput.input(inputfile ,inplace=1):
     line = line.strip()
     speakerID_match = speakerID_pattern.search(line)
     if speakerID_match:
@@ -95,6 +96,49 @@ def preprocess_file(inputfile):
     print (line.strip())
     fileinput.close()
     ### end of function preprocess_file()
+    
+    
+def clean_corrupt_file_old():
+  corrupt_fn = re.compile(".+pl/ep-09-10-22-009.txt")
+  problematic_files = list(filter(corrupt_fn.match, file_list))
+  
+  if len(problematic_files) > 0:
+    for problematic_file in problematic_files:
+      problematic_file_temp = problematic_file + ".tmp"
+      call_iconv = "iconv -t UTF-8//IGNORE " + problematic_file + " > " + problematic_file_temp
+      os.system(call_iconv)
+      call_rm = "rm " + problematic_file + "| mv " +  problematic_file_temp + " " + problematic_file
+      os.system(call_rm)
+  ###
+
+# Function to get rid of non-utf-coded characters in file ep-09-10-22-009.txt
+def clean_corrupt_file():
+  corrupt_fn = re.compile(".+pl/ep-09-10-22-009.txt")
+  problematic_files = list(filter(corrupt_fn.match, file_list))
+  if len(problematic_files) > 0:
+    for src in problematic_files:
+      tmp = problematic_file_temp = src + ".clean"
+      with codecs.open(src, 'r', encoding='utf-8', errors='ignore') as sourceFile:
+        with codecs.open(tmp, "w", "utf-8") as tmpFile:
+          while True:
+            contents = sourceFile.read()
+            if not contents:
+              break
+            tmpFile.write(contents)
+      os.remove(src)
+      os.rename(tmp, src)
+  ### End of function clean_corrupt_file()
+
+
+  
+  
+
+
+
+
+#  with open(inputfile, 'rt', encoding='utf-8', errors='ignore') as fl: # flag errors='ignore' is used in order to prevent program terminating
+
+
 
 ######### END OF FUNCTION DEFINITIONS #########
 
@@ -130,6 +174,16 @@ else:
 
 
 ### Main Program
+
+# BUGFIX:
+# Call clean_corrupt_file() to convert ep-09-10-22-009.txt from Polish
+# sub-folder (if exists) to UTF-8
+# This is necessary because the file contains illegal non-unicode characters
+
+clean_corrupt_file()
+
+
+    
 if args.file:
   print("\nPreprocessing file %s \n" %(path))
 else:
