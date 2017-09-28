@@ -16,15 +16,15 @@ import os
 import sys
 import codecs
   
-def get_inputfile(path):
+def get_sourcefile(path):
   if path.endswith('.txt'):
     file_list.append(path)
   else:
     print("Specified input file must have extension .txt")
     exit(1)
-  ### end of function get_inputfile()
+  ### end of function get_sourcefile()
 
-def get_inputfiles_from_folder(path):
+def get_sourcefiles_from_folder(path):
   for root, dirs, files in os.walk(path):
     for filename in files:
       if filename.endswith('.txt'):
@@ -33,10 +33,10 @@ def get_inputfiles_from_folder(path):
   if len(file_list) == 0:
     print ("\nNo files with extension .txt were found in folder %s\n\n" %(path))
     exit(1)
-  ### end of function get_inputfiles_from_folder()
+  ### end of function get_sourcefiles_from_folder()
 
 #
-def disambiguate_IDs(inputfile):
+def disambiguate_speaker_IDs(inputfile):
   usedIDs = {}
   for line in fileinput.input(inputfile ,inplace=1):
     line = line.strip()
@@ -55,34 +55,6 @@ def disambiguate_IDs(inputfile):
     else:
       print(line)
   fileinput.close()
-
-def preprocess_file(inputfile):
-  insertlogfile = open('log_insert.txt', mode='a')
-
-  #print(inputfile)
-  prevline = ""
-  new_speaker_id = 1
-  
-  
-  for line in fileinput.FileInput(inputfile ,inplace=1):
-    if exception1.search(line):
-      print("~" + exception1.search(line).group(1) + "~")
-      insertlogfile.write(inputfile + "\n   ~" + exception1.search(line).group(1) + "~" + "\n")
-    if langcode.search(line) and not speaker_tag.search(prevline):
-      prevline = line.strip()
-      lang = langcode.search(line).group(1)
-      #line = line.replace(line, "XXXXXXXXXXXXXX\n" + line)
-      insertlogfile.write(inputfile + "\n   #:" + line.strip() + " ==> ")
-
-      line = line.replace(line, "<SPEAKER ID=\"x" + "{0:03}".format(new_speaker_id) + "\" LANG=\"" + lang + "\">\n" + re.sub(langcode, '', line).strip())
-      new_speaker_id += 1
-      insertlogfile.write(" " + line.strip() + "\n\n")
-    else:
-      prevline = line.strip()
-    print (line.strip())
-
-    fileinput.close()
-    ### end of function preprocess_file()
 
 # Function to get rid of non-utf-coded characters in file ep-09-10-22-009.txt
 def clean_corrupt_file():
@@ -121,8 +93,6 @@ parser = argparse.ArgumentParser(description="Preprocessing of EuroParl corpus f
 parser.add_argument("path", help="Path to file to be processed or directory containing files to be processed")
 parser.add_argument("-l", "--log", action= "store_true",
                     help="Create a log file to track unprocessed files (if applicable)")
-parser.add_argument("-i", "--insert", action="store_true", help="Insert missing Speaker IDs")
-#parser.add_argument("-c", "--clean", action="store_true", help="Clean up Speaker IDs by replacing duplicate IDs")
 parser.add_argument("-d", "--disambiguateIDs", action="store_true", help="Disambiguate speaker IDs if one ID is assigned to multiple speech segments")
 parser.add_argument("-f", "--file", action="store_true", help="Process a single file rather than all files in a directory")
 args = parser.parse_args()
@@ -131,9 +101,9 @@ path = args.path
 ### Get input file(s) from arguments 
 file_list = []
 if args.file:
-  get_inputfile(path)
+  get_sourcefile(path)
 else:
-  get_inputfiles_from_folder(path)
+  get_sourcefiles_from_folder(path)
 
 
 ### Main Program
@@ -163,7 +133,7 @@ if args.disambiguateIDs:
   for inputfile in file_list:
     if args.log:
       logfile.write(inputfile + "\n")
-    disambiguate_IDs(inputfile)
+    disambiguate_speaker_IDs(inputfile)
     # Print progress status bar after cleaning file
     progress = int((counter/len(file_list))*100)
     statusbar = int(progress/2)
@@ -189,20 +159,6 @@ if args.clean:
     counter +=1
   print("\n\nCleaning completed!")
 '''
-
-
-if args.insert:
-  counter = 1
-  print("\nInserting missing speaker IDs\n")
-  for inputfile in file_list:
-    preprocess_file(inputfile)
-    # Print progress status bar after cleaning file
-    progress = int((counter/len(file_list))*100)
-    statusbar = int(progress/2)
-    sys.stdout.write("\r")
-    sys.stdout.write("\t["+"="*statusbar+" "*(50-statusbar)+"]"+"\t"+str(progress)+" %")
-    counter +=1
-  print("\n\nInserting IDs completed!")
 
   
 print("\n\n%s files have been preprocessed successfully!\n" %(len(file_list)))
