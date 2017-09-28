@@ -3,15 +3,14 @@ Prior to running this script, do the following (TODO: PREPARE .sh SCRIPT TO RUN 
 1) delete all empty lines:
   $ sed -i '/^$/d' txt/*/*.txt
   or use bash supplied script instead:
-  $ ./extract_tools/deleteemptylines.sh txt/ # will perform deletion recursively in all subfolders
+  $ ./europarl_extract/deleteemptylines.sh txt/ # will perform deletion recursively in all subfolders
+#2) Delete all <P> tags: # skip this part for later
+#  $ ./extract_tools/deleteXMLPar.sh txt/
 
-2) Delete all <P> tags:
-  $ ./extract_tools/deleteXMLPar.sh txt/
-  
-3) Pre-process corpus files using the supplied script insertSpeakerID.py:
-  $ python3 extract_tools/insertSpeakerID.py txt/ --d
-  
-  /home/m9/NLPLinguisticResources/europarl/in_test/b/ --d
+User preprocessing script to disambiguate conflicting IDs and insert missing IDs
+2) $ python3 europarl_extract/insertSpeakerID.py txt/ -l -i -d
+# $ python3 extract_tools/insertSpeakerID.py txt/ --d # check whether -i is good choice
+
  
 '''
 
@@ -19,23 +18,21 @@ import sys
 import os.path
 import re
 import pandas as pd
-import numpy as np
 import argparse
 from unidecode import unidecode
 from string import punctuation
-from pandas.tools.tests.test_util import CURRENT_LOCALE
 from itertools import zip_longest
 
 
-def get_inputfile(path):
+def get_sourcefile(path):
   if path.endswith('.txt'):
     file_list.append(path)
   else:
     print("Specified input file must have extension .txt")
     exit(1)
-  ### end of function get_inputfile()
+  ### end of function get_sourcefile()
 
-def get_inputfiles_from_folder(path):
+def get_sourcefiles_from_folder(path):
   for root, dirs, files in os.walk(path):
     for filename in files:
       if filename.endswith('.txt'):
@@ -44,9 +41,9 @@ def get_inputfiles_from_folder(path):
   if len(file_list) == 0:
     print ("\nNo files with extension .txt were found in folder %s\n\n" %(path))
     exit(1)
-  ### end of function get_inputfiles_from_folder()
+  ### end of function get_sourcefiles_from_folder()
 
-def write_speaker(line, nextline, speakerMatch, filename_base): #(line, nextline, speakerMatch, day_ID, chapter_ID, filename_base)
+def write_speakerturn_to_df(line, nextline, speakerMatch, filename_base): #(line, nextline, speakerMatch, day_ID, chapter_ID, filename_base)
   speaker_ID = speakerMatch.group(1)
   #unique_id = day_ID + "|" + chapter_ID + "|" + speaker_ID
   unique_id = filename_base + "|" + speaker_ID
@@ -112,7 +109,7 @@ def write_speaker(line, nextline, speakerMatch, filename_base): #(line, nextline
       else:
         speaker_list.loc[unique_id].loc['ADDITIONAL_LANGUAGE'][additional_lang_tag] += 1    
 
-  #### END FUNCTION write_speaker()
+  #### END FUNCTION write_speakerturn_to_df()
 
 ## group_speakers(dict) creates adictionary containing short forms of normalised names (3 characters long)
 # as keys and counts as values
@@ -379,30 +376,16 @@ def match_speakers(dict):
   return(speaker)
   
 
-def analyse_file(inputfile):
+def analyse_sourcefile(inputfile):
   
   filename_base = inputfile.split("/")[-1].split(".txt")[0].split("ep-")[1]
  
-  # get day identifier from filename
-
-  #identifier_base = inputfile.split('.')[0].split('ep-')[1]
-
-  #identifier_day = identifier_base.split('-')[0:4]
-
-  #identifier_suffix = identifier_base.split('-')[3:]
-  #day_ID = 'y'+identifier_day[0] + 'm'+identifier_day[1] + 'd'+identifier_day[2]
-
-  
-  #ep-07-04-26-015-01.txt # (n = 3000)
-  #ep-09-09-16-010.txt      (n=  5500)
-  #ep-09-09-15.txt          (n =  650)
-  
   # to avoid EOF errors, reading file line by line looks behind instead of looking ahead
   # this means that after reading a line it will be stored as prev_line (in for-loop renamed to current_line for verbosity)
   prev_line = None
   
   with open(inputfile, 'rt', encoding='utf-8', errors='ignore') as fl: # flag errors='ignore' is used in order to prevent program terminating upon encoding errors (one such error can be found in file /txt/pl/ep-09-10-22-009.txt)
-    #iterate over whole file, extract chapterIDs, SpeakerIDs and language codes (the latter in write_speaker)
+    #iterate over whole file, extract chapterIDs, SpeakerIDs and language codes (the latter in write_speakerturn_to_df)
     for line in fl:
       if not prev_line == None:
         current_line = prev_line.strip()
@@ -414,11 +397,11 @@ def analyse_file(inputfile):
         speakerMatch = speakerTag.search(current_line)
         if speakerMatch:
           #print(prev_line[0:30])
-          write_speaker(current_line, next_line, speakerMatch, filename_base) #(current_line, next_line, speakerMatch, day_ID, chapter_ID, filename_base)
+          write_speakerturn_to_df(current_line, next_line, speakerMatch, filename_base) #(current_line, next_line, speakerMatch, day_ID, chapter_ID, filename_base)
       prev_line = line.strip()
     
     # after reaching the last line of file (stored as prev_line), check once again whether there is a language tag
-    # this time, next_line is empty because it is the end of file, therefore we pass '' to function write_speaker()
+    # this time, next_line is empty because it is the end of file, therefore we pass '' to function write_speakerturn_to_df()
     #print("EOF: %s" %(prev_line[0:80]))
     
     if prev_line == None:
@@ -428,19 +411,10 @@ def analyse_file(inputfile):
       chapter_ID = chapterMatch.group(1)
     speakerMatch = speakerTag.search(prev_line)
     if speakerMatch:
-      write_speaker(prev_line, '', speakerMatch, filename_base) # here prev_line is the last line of fie and next_line is '' because of EOF
+      write_speakerturn_to_df(prev_line, '', speakerMatch, filename_base) # here prev_line is the last line of fie and next_line is '' because of EOF
   #speaker_list.loc['y06m04d04|1|005'].loc['ORIGINAL_LANGUAGE']['XY'] = 'xy'
-  ###### END FUNCTION analyse_file()
+  ###### END FUNCTION analyse_sourcefile()
 
-'''
-def get_languagepairs(sourceLanguages, targetLanguages):
-  languagepairs = []
-  for tl in targetLanguages:
-    for sl in sourceLanguages:
-      if sl != tl:
-        languagepairs.append((sl, tl))
-  return(languagepairs)
-'''
     
 
 def create_folders_comparable_nontranslated(outDir, tl):
@@ -487,7 +461,7 @@ def create_folders_parallel(outDir, sl, tl):
   except OSError:
     pass
 
-def write_statements_to_files(filename_input, filename_output, ids):
+def write_statements_to_txt(filename_input, filename_output, ids):
   # from list of ids create regex pattern to match speaker IDs for nontranslated statemens to be extracted
   speakerID_pattern = re.compile(r'<SPEAKER ID="?(' + '|'.join(ids) +')"? ')
   #print("  " + str(speakerID_pattern))
@@ -654,10 +628,10 @@ def extract_comparable_nontranslated(statements_nontranslated, tl):
       #print("\nReading Europarl-file " + fname_input)
       create_folders_comparable_nontranslated(outDir, tl)
       # Write to output director one statement file for each non-translated statement in given language \
-      # from the Europarl inputfile by calling function write_statements_to_files(in, out, id)
+      # from the Europarl inputfile by calling function write_statements_to_txt(in, out, id)
       if args.debug:
         logfile.write("  Extracting non-translated comparable statements from\t%s (filename: %s)\n" %(fname_input, statements_nontranslated[filename]))
-      write_statements_to_files(fname_input, fname_output, statements_nontranslated[filename]) #3rd argument = statement ID
+      write_statements_to_txt(fname_input, fname_output, statements_nontranslated[filename]) #3rd argument = statement ID
   ######
 
 def extract_comparable_translated(statements_sourcelanguage, sl, tl):
@@ -674,7 +648,7 @@ def extract_comparable_translated(statements_sourcelanguage, sl, tl):
       create_folders_comparable_translated(outDir, sl, tl)
       if args.debug:
         logfile.write("  Extracting translated comparable statements from\t%s\n" %(fname_input))
-      write_statements_to_files(fname_input, fname_output, statements_sourcelanguage[filename])
+      write_statements_to_txt(fname_input, fname_output, statements_sourcelanguage[filename])
       
 
 def extract_parallel(statements_sourcelanguage, sl, tl):
@@ -698,15 +672,15 @@ def extract_parallel(statements_sourcelanguage, sl, tl):
       create_folders_parallel(outDir, sl, tl)
       #print(" Preparing output files\n\t%s\n\t%s" %(fname_output_sl, fname_output_tl))
       
-      write_statements_to_files(fname_input_sl, fname_output_sl, statements_sourcelanguage[filename])
-      write_statements_to_files(fname_input_tl, fname_output_tl, statements_sourcelanguage[filename])
+      write_statements_to_txt(fname_input_sl, fname_output_sl, statements_sourcelanguage[filename])
+      write_statements_to_txt(fname_input_tl, fname_output_tl, statements_sourcelanguage[filename])
       if args.tmx:
         write_statements_to_tmx(fname_input_sl, fname_input_tl, fname_output_tmx, statements_sourcelanguage[filename], sl, tl)
       
       
       #write_parallel_statements_to_files(fname_input_sl, fname_input_tl, fname_output_sl, fname_output_tl, statements_sourcelanguage[filename])
       
-      #write_statements_to_files(fname_input, fname_output, statements_sourcelanguage[filename])
+      #write_statements_to_txt(fname_input, fname_output, statements_sourcelanguage[filename])
 
 ############################################ MAIN #####################################
 
@@ -716,7 +690,7 @@ langcode = re.compile (r"\((BG|CS|DA|DE|EL|EN|ES|ET|FI|FR|GA|\
 langcode_exception = re.compile(r'(\(ES\) ?(č\.|č|št|št\.|Nr\.)? ?\d{2,})')
 
 chapterTag = re.compile(r'<CHAPTER ID="?([\d_]+)"?')
-speakerTag = re.compile(r'<SPEAKER ID="?(\d+(_\d{3})?)"?')
+speakerTag = re.compile(r'<SPEAKER ID="?(x?\d+(_\d{3})?)"?') #?x greps optional x to capture inserted language IDs - original RegEx was: (r'<SPEAKER ID="?(\d+(_\d{3})?)"?')
 languageTag = re.compile(r'LANGUAGE="(\w{2})"')
 nameTag = re.compile(r'NAME="([^"]*)"')
 president = re.compile(r'(Πρόεδρ|Président|Formand|Președin|Elnök|Przewodnicz|\
@@ -756,7 +730,7 @@ iooptions_comparable.add_argument("-d", "--debug", required=False, action= "stor
 iooptions_comparable.add_argument("-f", "--file", action="store_true", required=False, help="Process a single input file rather than all files in a directory")
 iooptions_comparable.add_argument("-s", "--statementList", nargs=1, required=False,
                     help="Supply External Statement List in CSV Format")
-iooptions_comparable.add_argument("-al", "--additionalLanguagetags", action="store_true", required=False, help="Disseminate additional language tags to increase number of statements")
+iooptions_comparable.add_argument("-al", "--additionalLanguagetags", action="store_true", required=False, help="Disseminate additional language tags to increase recall of segments")
 
 
 #  Subparser for Parallel Corpora
@@ -792,9 +766,9 @@ outDir = args.outputFolder
 #  Get input file(s) from arguments 
 file_list = []
 if args.file:
-  get_inputfile(inDir)
+  get_sourcefile(inDir)
 else:
-  get_inputfiles_from_folder(inDir)
+  get_sourcefiles_from_folder(inDir)
 
 sourceLanguages = args.sl
 if 'all' in sourceLanguages:
@@ -838,7 +812,7 @@ else:
   for inputfile in file_list:
     if args.debug:
       logfile.write(inputfile + "\n")
-    analyse_file(inputfile)
+    analyse_sourcefile(inputfile)
   
     progress = int((counter/len(file_list))*100)
     statusbar = int(progress/2)
@@ -878,8 +852,8 @@ else:
     ##  Finished Post-Processing speaker_list
     
   print("Post-processing completed, final list of statements has been generated!\n")
-  speaker_list.to_csv(outDir + 'statementList_full.csv', sep='\t', header=True, encoding='UTF-8')
-  print("Speaker list successfully exported to CSV as " + outDir + "/statementList_full.csv !\n")
+  speaker_list.to_csv(outDir + 'statementList_full_beta.csv', sep='\t', header=True, encoding='UTF-8')
+  print("Speaker list successfully exported to CSV as " + outDir + "/statementList_full_beta.csv !\n")
   #print(speaker_list)
 ###  Finished Generating and Post-Processing List of Statements from Input Files
 

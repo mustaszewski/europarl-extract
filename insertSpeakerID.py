@@ -35,6 +35,7 @@ def get_inputfiles_from_folder(path):
     exit(1)
   ### end of function get_inputfiles_from_folder()
 
+#
 def disambiguate_IDs(inputfile):
   usedIDs = {}
   for line in fileinput.input(inputfile ,inplace=1):
@@ -55,28 +56,9 @@ def disambiguate_IDs(inputfile):
       print(line)
   fileinput.close()
 
-''' # DEPRECATED FUNCTION clean_IDs, use disambiguate_IDs instead!
-def clean_IDs(inputfile):
-  # Get the first ID in file and create unique running IDs by increasing first ID by one
-  # This is done for each line that contains a tag of form <SPEAKER ID="xxx"> 
-  first_ID = True
-  for line in fileinput.FileInput(inputfile ,inplace=1):
-    line = line.strip()
-    speakerID_match = speakerID_pattern.search(line)
-    if speakerID_match:
-      original_ID = speakerID_match.group(1)
-      if first_ID:
-        new_ID = int(speakerID_match.group(1))
-        first_ID = False
-      print(line.replace(original_ID, "{0:03}".format(new_ID)))
-      new_ID += 1
-    else:
-      print(line)
-  fileinput.close()
-  ### end of function cleanIDs
-'''
-
 def preprocess_file(inputfile):
+  insertlogfile = open('log_insert.txt', mode='a')
+
   #print(inputfile)
   prevline = ""
   new_speaker_id = 1
@@ -85,15 +67,20 @@ def preprocess_file(inputfile):
   for line in fileinput.FileInput(inputfile ,inplace=1):
     if exception1.search(line):
       print("~" + exception1.search(line).group(1) + "~")
+      insertlogfile.write(inputfile + "\n   ~" + exception1.search(line).group(1) + "~" + "\n")
     if langcode.search(line) and not speaker_tag.search(prevline):
       prevline = line.strip()
       lang = langcode.search(line).group(1)
       #line = line.replace(line, "XXXXXXXXXXXXXX\n" + line)
+      insertlogfile.write(inputfile + "\n   #:" + line.strip() + " ==> ")
+
       line = line.replace(line, "<SPEAKER ID=\"x" + "{0:03}".format(new_speaker_id) + "\" LANG=\"" + lang + "\">\n" + re.sub(langcode, '', line).strip())
       new_speaker_id += 1
+      insertlogfile.write(" " + line.strip() + "\n\n")
     else:
       prevline = line.strip()
     print (line.strip())
+
     fileinput.close()
     ### end of function preprocess_file()
 
