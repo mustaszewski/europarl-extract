@@ -22,6 +22,7 @@ import argparse
 from unidecode import unidecode
 from string import punctuation
 from itertools import zip_longest
+from argparse import MetavarTypeHelpFormatter
 
 
 def get_sourcefile(path):
@@ -461,14 +462,33 @@ def create_folders_parallel(outDir, sl, tl):
   except OSError:
     pass
 
+
+def clean_line(line):
+  if isCleanOutput == "langs" or isCleanOutput == "both":
+    if langcode.search(line) and not langcode_exception.search(line): # and not langcode_exception.search(current_line): ##NEW
+      line = re.sub(langcode, '', line) ## NEW
+  if isCleanOutput == "turns" or isCleanOutput == "both":
+    if xmlTag_all.search(line):
+      line = ""
+  line = re.sub('\s{2,}', ' ', line)    
+  return(line.strip())
+  
+
+  
+        ##TO DO CHECK IF LANGUAGE CODE EXCEPTIONS ARE CORRECCTLY RENDERED!
+        ## TO DO: Option Switch to remove <SPEAKER ID>, <CHAPTER ID> and maybe <P> XML tags from txt/tmx/aligned tab files 
+
+
+
 def write_statements_to_txt(filename_input, filename_output, ids):
   # from list of ids create regex pattern to match speaker IDs for nontranslated statemens to be extracted
   speakerID_pattern = re.compile(r'<SPEAKER ID="?(' + '|'.join(ids) +')"? ')
+
   #print("  " + str(speakerID_pattern))
-  
+  #cleanLanguageTags = True ## NEW
   # Open EuroParl input file and iterate linewise to find (non)translated statements to be extracted
   # All of these statements will be written to separate output files 
-  with open(filename_input, 'rt', encoding='utf-8', errors='ignore') as fl_in:    
+  with open(filename_input, 'rt', encoding='utf-8', errors='ignore') as fl_in:
     prev_line = None
     do_extraction = False
     for line in fl_in:
@@ -479,29 +499,46 @@ def write_statements_to_txt(filename_input, filename_output, ids):
         # if regex finds speaker ID in line write statement to output file
         # all lines until the ocurrence of a further < > tag will be written to output file
         if speakerID_pattern.search(current_line):
+          
+          linecounter = 0 # NEW
+
+          
 
           statementID = speakerID_pattern.search(current_line).group(1)
           fname_out = filename_output.replace('xIDx', statementID)
-          #print("Writing to output file\t" + fname_out)
-          #filename_output = (outDir + "/comparable/non-translated/" + tl + "/" + filename + "_" + statementID + "_" + tl.lower() + ".txt").replace('//', '/')
           open(fname_out, mode='w').close() # make sure outputfile exists
           fl_out = open(fname_out, mode='a', encoding='utf-8')
-          do_extraction = True
+
+
+            
           
+          do_extraction = True          
         if do_extraction == True: # and not speakerID_pattern.search(current_line): # remove and not speakerID_pattern.search(current_line): to preserve speaker id tag 
-          fl_out.write(current_line+"\n")
+          if isCleanOutput:
+            current_line = clean_line(current_line)
+          if len(current_line) > 0:
+            fl_out.write(current_line+"\n")
+            linecounter += 1
         if do_extraction == True and xmlTag.search(next_line):#"<SPEAKER ID" in next_line:
-          #print("S T O P P I N G,   N E X T   L I N E    I S : "+ next_line[0:40])
           do_extraction = False
           fl_out.close()
-          #print("  nl " + next_line[0:40])
+          # Remove file if it is empty of consists only of XML meta tag
+          if linecounter < min_lines_per_file:
+            os.remove(fname_out)
 
       prev_line = line.strip()
     current_line = prev_line
     next_line = ''
     if do_extraction == True:
-      fl_out.write(current_line)
+      if args.cleanOutput:
+        current_line = clean_line(current_line)
+      if len(current_line) > 0:
+        fl_out.write(current_line)
+        linecounter += 1
       fl_out.close()
+      # Remove file if it is empty of consists only of XML meta tag
+      if linecounter < min_lines_per_file:
+        os.remove(fname_out)
       
 
 def write_statements_to_tmx(filename_input_sl, filename_input_tl, filename_output_tmx, ids, sl, tl):
@@ -632,6 +669,8 @@ def extract_comparable_nontranslated(statements_nontranslated, tl):
       if args.debug:
         logfile.write("  Extracting non-translated comparable statements from\t%s (filename: %s)\n" %(fname_input, statements_nontranslated[filename]))
       write_statements_to_txt(fname_input, fname_output, statements_nontranslated[filename]) #3rd argument = statement ID
+    
+  #print("SIZE: %s\n" %(filesize))
   ######
 
 def extract_comparable_translated(statements_sourcelanguage, sl, tl):
@@ -649,6 +688,7 @@ def extract_comparable_translated(statements_sourcelanguage, sl, tl):
       if args.debug:
         logfile.write("  Extracting translated comparable statements from\t%s\n" %(fname_input))
       write_statements_to_txt(fname_input, fname_output, statements_sourcelanguage[filename])
+      
       
 
 def extract_parallel(statements_sourcelanguage, sl, tl):
@@ -700,7 +740,8 @@ president = re.compile(r'(Πρόεδρ|Président|Formand|Președin|Elnök|Przew
 exceptions_nonroman = re.compile(r'(|Барозу|Малмстрьом|Κυριάκος|Аштън|Мишел|Гюнтер|Йоханес|Хоакин|\
                                     |Хосе|Σπύρος|Щефан|Συλβάνα|Ευαγγελία|Оли Рен|Δημητρακόπουλος|\
                                     |Δημήτριος|Жак|Джо|Ян|Μπ|Χρ|Χαρ)')
-xmlTag = re.compile(r'^<.+>$')
+xmlTag_all = re.compile(r'^<.+>$')
+xmlTag = re.compile(r'^<[^P].*>$')
 
 
 ###  Define command line arguments
@@ -726,11 +767,13 @@ paths_comparable.add_argument("-o", "--outputFolder", required=True, help="Outpu
 
 iooptions_comparable = parser_comparable.add_argument_group("INPUT-/OUTPUT OPTIONS")
 iooptions_comparable.add_argument("-d", "--debug", required=False, action= "store_true",
-                    help="Create a log file to for debugging")
+                    help="Create a log file for debugging")
 iooptions_comparable.add_argument("-f", "--file", action="store_true", required=False, help="Process a single input file rather than all files in a directory")
 iooptions_comparable.add_argument("-s", "--statementList", nargs=1, required=False,
                     help="Supply External Statement List in CSV Format")
 iooptions_comparable.add_argument("-al", "--additionalLanguagetags", action="store_true", required=False, help="Disseminate additional language tags to increase recall of segments")
+iooptions_comparable.add_argument("-c", "--cleanOutput", nargs=1,
+                                  choices=['langs', 'turns', 'both'], required=False, help='Clean output from XML for paragraphs, speaker turns or both')
 
 
 #  Subparser for Parallel Corpora
@@ -753,6 +796,8 @@ iooptions_parallel.add_argument("-f", "--file", action="store_true", required=Fa
 iooptions_parallel.add_argument("-s", "--statementList", nargs=1, required=False,
                     help="Supply External Statement List in CSV Format")
 iooptions_parallel.add_argument("-al", "--additionalLanguagetags", action="store_true", required=False, help="Disseminate additional language tags to increase number of statements")
+iooptions_parallel.add_argument("-c", "--cleanOutput", nargs=1,
+                                  choices=['langs', 'turns', 'both'], required=False, help='Clean output from XML for paragraphs, speaker turns or both')
 
 
 #  Parse command line input
@@ -783,14 +828,27 @@ if 'all' in targetLanguages:
 if args.debug:
   open(outDir + '/log_extraction.txt', 'w').close()
   logfile = open(outDir + '/log_extraction.txt', mode='a')
+  #open(outDir + '/log_extraction_txt.txt', 'w').close()
+  #logfile_txt = open(outDir + '/log_extraction_txt.txt', mode='a')
 
 if args.statementList:
   statementList_path = args.statementList[0]
   print(statementList_path)
 
+if args.cleanOutput:
+  isCleanOutput = args.cleanOutput[0]
+  if isCleanOutput != "langs":
+    min_lines_per_file = 1
+  else:
+    min_lines_per_file = 2
+else:
+  isCleanOutput = False
+  min_lines_per_file = 2
+
+
 ###  Parsing command line input completed
 
-###  If no external CSV list of statements is supplied then generate it from EuroParl
+###  If no external CSV list of statements is supplied then generate it from EuroParl source files
 if args.statementList:
   print("Reading list of statements from pre-compiled external CSV file %s" %(statementList_path))
   speaker_list = pd.read_csv(statementList_path, sep='\t', dtype=str, index_col=0)
@@ -842,13 +900,7 @@ else:
     sourceLanguage = language_vote(row['ORIGINAL_LANGUAGE'], row['ADDITIONAL_LANGUAGE'])
     row['SL'] = sourceLanguage
     
-    '''
-    if not row['ORIGINAL_LANGUAGE']:
-      if row['ADDITIONAL_LANGUAGE']:
-        row['SL2'] = max(row['ADDITIONAL_LANGUAGE'], key=row['ADDITIONAL_LANGUAGE'].get) #language_vote(, row['ORIGINAL_LANGUAGE'])
-      else:
-        row['SL2'] = "xNAN"
-    '''
+
     ##  Finished Post-Processing speaker_list
     
   print("Post-processing completed, final list of statements has been generated!\n")
@@ -938,3 +990,4 @@ else:
       
 if args.debug:
   logfile.close()
+  logfile_txt.close()
