@@ -8,8 +8,11 @@ Prior to running this script, do the following (TODO: PREPARE .sh SCRIPT TO RUN 
 #  $ ./extract_tools/deleteXMLPar.sh txt/
 
 User preprocessing script to disambiguate conflicting IDs and insert missing IDs
-2) $ python3 europarl_extract/insertSpeakerID.py txt/ -l -i -d
-# $ python3 extract_tools/insertSpeakerID.py txt/ --d # check whether -i is good choice
+3) $ python3 europarl_extract/disambiguate_speaker_IDs.py txt/
+
+4) Run this script:
+4.1) For extraction of comparable corpora do:
+$ python3 europarl_extract/extract.py comparable -sl PL ES -tl DE -i txt/ -o output_folder/ -s statementList_full_beta.csv -al -c both
 
  
 '''
@@ -688,8 +691,45 @@ def extract_comparable_translated(statements_sourcelanguage, sl, tl):
       if args.debug:
         logfile.write("  Extracting translated comparable statements from\t%s\n" %(fname_input))
       write_statements_to_txt(fname_input, fname_output, statements_sourcelanguage[filename])
-      
-      
+
+# clean_parallel_texts is deletes monolingual files if no corresponding monolingual file is 
+# found in folder pertaining to the other language of the language pair (e.g. remove 
+# file x01.txt from folde ES_sl if no file x01.txt exists in folder DE_tl, both of which pertaining
+# to the language pair ES-DE
+def clean_parallel_texts(sl, dirname_sl, tl, dirname_tl):
+  files_sl = []
+  files_tl = []
+  
+  #dirname_sl = "op_test/parallel/ES-DE/ES_sl/"
+  for root, dirs, files in os.walk(dirname_sl):
+    for fn in files:
+      if fn.endswith('.txt'):
+        files_sl.append(re.sub("_" + sl + ".txt", "", fn))
+
+
+  for root, dirs, files in os.walk(dirname_tl):
+    for fn in files:
+      if fn.endswith('.txt'):
+        files_tl.append(re.sub("_" + tl + ".txt", "", fn))
+
+  delete_from_dirname_sl = set(files_sl) - set(files_tl)
+  delete_from_dirname_tl = set(files_tl) - set(files_sl)
+  
+  #print("\nTO BE DELETED FROM SL: %s\n" %(delete_from_dirname_sl))
+  #print("\nTO BE DELETED FROM TL: %s\n" %(delete_from_dirname_tl))
+
+  
+  for i in delete_from_dirname_sl:
+    fn = (dirname_sl + "/" + i + "_" + sl + ".txt").replace('//', '/')
+    os.remove(fn)
+    #print("  Deleting %s!" %(fn))
+
+  for i in delete_from_dirname_tl:
+    fn = (dirname_tl + "/" + i + "_" + tl + ".txt").replace('//', '/')
+    os.remove(fn)
+    #print("  Deleting %s!" %(fn))
+ 
+   
 
 def extract_parallel(statements_sourcelanguage, sl, tl):
   #print("\nOBTAINING text originally uttered in %s and translated to %s\n" %(sl, tl))
@@ -706,17 +746,29 @@ def extract_parallel(statements_sourcelanguage, sl, tl):
     if os.path.exists(fname_input_sl) and os.path.exists(fname_input_tl):
       #print("Reading Europarl-files\n\t%s\n\t%s" %(fname_input_sl, fname_input_tl))
       fname_output_sl = (outDir + "/parallel/" + sl + "-" + tl + "/" + sl + "_sl/" + filename + "_" + "xIDx" + "_" + sl.lower() + ".txt").replace('//', '/')
+      #fname_output_sl = (outDir + "/parallel/" + sl + "-" + tl + "/" + sl + "_sl/" + filename + "_" + "xIDx" + ".txt").replace('//', '/')
+
       fname_output_tl = (outDir + "/parallel/" + sl + "-" + tl + "/" + tl + "_tl/" + filename + "_" + "xIDx" + "_" + tl.lower() + ".txt").replace('//', '/')    
+      #fname_output_tl = (outDir + "/parallel/" + sl + "-" + tl + "/" + tl + "_tl/" + filename + "_" + "xIDx" + ".txt").replace('//', '/')    
       if args.tmx:
-        fname_output_tmx = (outDir + "/parallel/" + sl + "-" + tl + "/tmx/" + filename + "_" + "xIDx" + "_" + sl.lower() + "-" + tl.lower() + ".tmx").replace('//', '/')    
+        fname_output_tmx = (outDir + "/parallel/" + sl + "-" + tl + "/tmx/" + filename + "_" + "xIDx" + "_" + sl.lower() + "-" + tl.lower() + ".tmx").replace('//', '/')
       create_folders_parallel(outDir, sl, tl)
       #print(" Preparing output files\n\t%s\n\t%s" %(fname_output_sl, fname_output_tl))
       
       write_statements_to_txt(fname_input_sl, fname_output_sl, statements_sourcelanguage[filename])
       write_statements_to_txt(fname_input_tl, fname_output_tl, statements_sourcelanguage[filename])
+      
+      
+      dirname_output_sl = (outDir + "/parallel/" + sl + "-" + tl + "/" + sl + "_sl/").replace('//', '/')
+      dirname_output_tl = (outDir + "/parallel/" + sl + "-" + tl + "/" + tl + "_tl/").replace('//', '/')    
+
+      
       if args.tmx:
         write_statements_to_tmx(fname_input_sl, fname_input_tl, fname_output_tmx, statements_sourcelanguage[filename], sl, tl)
-      
+
+  # remove spurious monolingual files from language-pair-specific subfolder of parallel corpus
+  clean_parallel_texts(sl.lower(), dirname_output_sl, tl.lower(), dirname_output_tl)
+
       
       #write_parallel_statements_to_files(fname_input_sl, fname_input_tl, fname_output_sl, fname_output_tl, statements_sourcelanguage[filename])
       
@@ -904,8 +956,8 @@ else:
     ##  Finished Post-Processing speaker_list
     
   print("Post-processing completed, final list of statements has been generated!\n")
-  speaker_list.to_csv(outDir + 'statementList_full_beta.csv', sep='\t', header=True, encoding='UTF-8')
-  print("Speaker list successfully exported to CSV as " + outDir + "/statementList_full_beta.csv !\n")
+  speaker_list.to_csv(outDir + 'statementList_full.csv', sep='\t', header=True, encoding='UTF-8')
+  print("Speaker list successfully exported to CSV as " + outDir + "/statementList_full.csv !\n")
   #print(speaker_list)
 ###  Finished Generating and Post-Processing List of Statements from Input Files
 
@@ -990,4 +1042,4 @@ else:
       
 if args.debug:
   logfile.close()
-  logfile_txt.close()
+  #logfile_txt.close()
