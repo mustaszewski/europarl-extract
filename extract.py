@@ -1,18 +1,24 @@
 '''
 Prior to running this script, do the following (TODO: PREPARE .sh SCRIPT TO RUN ALL STEPS AT ONCE)
-1) delete all empty lines:
-  $ sed -i '/^$/d' txt/*/*.txt
-  or use bash supplied script instead:
-  $ ./europarl_extract/deleteemptylines.sh txt/ # will perform deletion recursively in all subfolders
-#2) Delete all <P> tags: # skip this part for later
-#  $ ./extract_tools/deleteXMLPar.sh txt/
+1) Clean source files:
+  $ cd europarl
+  $ europarl_extract/preprocess/cleanSourceFiles.sh
+  
 
-User preprocessing script to disambiguate conflicting IDs and insert missing IDs
-3) $ python3 europarl_extract/disambiguate_speaker_IDs.py txt/
+2) Disambiguate conflicting IDs and insert missing IDs:
+  $ python3 europarl_extract/disambiguate_speaker_IDs.py txt/
 
-4) Run this script:
+3) Split sentences and tokenise source files (splitting only required for parallel corpora, tokenisation is optional for both comparable and parallel corpora)
+  $ europarl_extract/preprocess/segment-tokenise_EuroParl.sh txt/
+  OR
+  $ europarl_extract/preprocess/segment-tokenise_ixaPipes.sh txt/
+  OR
+  $ europarl_extract/preprocess/segment_EuroParl.sh txt/
+  
+4) Extract multilingual speaker turns:
 4.1) For extraction of comparable corpora do:
-$ python3 europarl_extract/extract.py comparable -sl PL ES -tl DE -i txt/ -o output_folder/ -s statementList_full_beta.csv -al -c both
+  $ python3 europarl_extract/extract.py comparable -sl PL ES -tl DE -i txt/ -o output_folder/ -s statementList_full_beta.csv -al -c both
+  
 
  
 '''
@@ -692,7 +698,7 @@ def extract_comparable_translated(statements_sourcelanguage, sl, tl):
         logfile.write("  Extracting translated comparable statements from\t%s\n" %(fname_input))
       write_statements_to_txt(fname_input, fname_output, statements_sourcelanguage[filename])
 
-# clean_parallel_texts is deletes monolingual files if no corresponding monolingual file is 
+# clean_parallel_texts deletes monolingual files if no corresponding monolingual file is 
 # found in folder pertaining to the other language of the language pair (e.g. remove 
 # file x01.txt from folde ES_sl if no file x01.txt exists in folder DE_tl, both of which pertaining
 # to the language pair ES-DE
@@ -733,6 +739,7 @@ def clean_parallel_texts(sl, dirname_sl, tl, dirname_tl):
 
 def extract_parallel(statements_sourcelanguage, sl, tl):
   #print("\nOBTAINING text originally uttered in %s and translated to %s\n" %(sl, tl))
+  
   for filename in statements_sourcelanguage.keys():
     # Generate filenames for input and output. Input: TL file with corresponding filename \
     # from statements_translated. Outputfile contains 1) Europarl filename (without prefix ep-), 2) Statement ID \
@@ -757,6 +764,7 @@ def extract_parallel(statements_sourcelanguage, sl, tl):
       
       write_statements_to_txt(fname_input_sl, fname_output_sl, statements_sourcelanguage[filename])
       write_statements_to_txt(fname_input_tl, fname_output_tl, statements_sourcelanguage[filename])
+
       
       
       dirname_output_sl = (outDir + "/parallel/" + sl + "-" + tl + "/" + sl + "_sl/").replace('//', '/')
@@ -777,9 +785,9 @@ def extract_parallel(statements_sourcelanguage, sl, tl):
 ############################################ MAIN #####################################
 
 ### Define globally used regex-patterns
-langcode = re.compile (r"\((BG|CS|DA|DE|EL|EN|ES|ET|FI|FR|GA|\
-                        HU|IT|LT|LV|MT|NL|PL|PT|RO|SK|SV|SL)\)")
-langcode_exception = re.compile(r'(\(ES\) ?(č\.|č|št|št\.|Nr\.)? ?\d{2,})')
+langcode = re.compile (r"\( ?(BG|CS|DA|DE|EL|EN|ES|ET|FI|FR|GA|\
+                        HU|IT|LT|LV|MT|NL|PL|PT|RO|SK|SV|SL) ?\)") # grouped for retrieval: language code in parenthesis, with optional space between code and parenthesis
+langcode_exception = re.compile(r'(\( ?ES ?\)( št\.? | \d{1,4} ?/| ?,? \(? ?č| Nr))')
 
 chapterTag = re.compile(r'<CHAPTER ID="?([\d_]+)"?')
 speakerTag = re.compile(r'<SPEAKER ID="?(x?\d+(_\d{3})?)"?') #?x greps optional x to capture inserted language IDs - original RegEx was: (r'<SPEAKER ID="?(\d+(_\d{3})?)"?')
@@ -1035,10 +1043,15 @@ else:
         statements_sourcelanguage[fname].append(id)
     #print("\nThere are %s files containing source-language statements originally uttered in language %s\n %s" %(len(statements_sourcelanguage), sl, statements_sourcelanguage))
     for tl in targetLanguages:
-      if tl != sl: #avoid pairs of type BG-BG, which are equivalent to non-translated statements
+      if os.path.exists(inDir + "/" + sl.lower()) and tl != sl: #avoid pairs of type BG-BG, which are equivalent to non-translated statements as well as pairs like MT>BG, for which no source files exist
         extract_parallel(statements_sourcelanguage, sl, tl)
   print("\nExtraction of PARALLEL Corpora Completed!\n\n")
-
+'''
+  if os.path.exists(inDir + "/" + sl.lower()):
+    print("\tSL files for lang %s exist!" %(sl))
+  else:
+    print("\tNOO files for lang %s!" %(sl))
+'''
       
 if args.debug:
   logfile.close()
