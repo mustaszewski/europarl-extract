@@ -2,10 +2,11 @@
 This script pre-processes EuroParl files, which is a necessary step
 for the extraction of directional multilingual parallel corpora.
 
-The -d parameter disambiguates speaker IDs to avoid that two or more speech segments are assigned the same ID
+The script disambiguates speaker IDs to avoid that two or more speech segments are assigned the same ID
 
-# DEPRECATED: The -c parameter assigns unique running speaker IDs to each speech segment in the corpus files.
+Usage:
 
+$ python3 europarl_extract/disambiguate_speaker_IDs.py txt/
 
 '''
 
@@ -93,7 +94,7 @@ parser = argparse.ArgumentParser(description="Preprocessing of EuroParl corpus f
 parser.add_argument("path", help="Path to file to be processed or directory containing files to be processed")
 parser.add_argument("-l", "--log", action= "store_true",
                     help="Create a log file to track unprocessed files (if applicable)")
-parser.add_argument("-d", "--disambiguateIDs", action="store_true", help="Disambiguate speaker IDs if one ID is assigned to multiple speech segments")
+#parser.add_argument("-d", "--disambiguateIDs", action="store_true", help="Disambiguate speaker IDs if one ID is assigned to multiple speech segments")
 parser.add_argument("-f", "--file", action="store_true", help="Process a single file rather than all files in a directory")
 args = parser.parse_args()
 path = args.path
@@ -127,20 +128,20 @@ if args.log:
   logfile = open('log_preprocess.txt', mode='a')
 
 
-if args.disambiguateIDs:
-  counter = 1
-  print("\nDisambiguating speaker IDs\n")
-  for inputfile in file_list:
-    if args.log:
-      logfile.write(inputfile + "\n")
-    disambiguate_speaker_IDs(inputfile)
-    # Print progress status bar after cleaning file
-    progress = int((counter/len(file_list))*100)
-    statusbar = int(progress/2)
-    sys.stdout.write("\r")
-    sys.stdout.write("\t["+"="*statusbar+" "*(50-statusbar)+"]"+"\t"+str(progress)+" %")
-    counter +=1
-  print("\n\nDisambiguation procedure completed!")
+#if args.disambiguateIDs:
+counter = 1
+print("\nDisambiguating speaker IDs\n")
+for inputfile in file_list:
+  if args.log:
+    logfile.write(inputfile + "\n")
+  disambiguate_speaker_IDs(inputfile)
+  # Print progress status bar after cleaning file
+  progress = int((counter/len(file_list))*100)
+  statusbar = int(progress/2)
+  sys.stdout.write("\r")
+  sys.stdout.write("\t["+"="*statusbar+" "*(50-statusbar)+"]"+"\t"+str(progress)+" %")
+  counter +=1
+print("\n\nDisambiguation procedure completed!")
 
 if args.log:
   logfile.close()
