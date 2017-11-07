@@ -27,7 +27,7 @@ tar xzf europarl.tgz
 ```
 ## Preprocess Source Files
 
-### 1. Remove XML markup and empty lines
+### 1. Remove XML Markup and Empty Lines
 
 The original EuroParl files need to be prepared for the use with EuroParlExtract. First, remove XML markup, empty lines etc. with the supplied bash script `$ cleanSourceFiles.sh path_to_input_folder/`, e.g.:
 
@@ -45,12 +45,13 @@ python3 disambiguate_speaker_IDs.py txt/
 
 ### 3. Sentence Segmentation and Optional Tokenisation
 
-For the extraction of sentence-aligned parallel corpora, sentence segmentation is a required pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required. Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs. EuroParlExtract offers two different tools for sentence segmentaion and tokenisation users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java (see http://ixa2.si.ehu.es/ixa-pipes/), and or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl (see http://www.statmt.org/europarl/).
+For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required. Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
+EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java (see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users may choose whatever they prefer.
 
-To segmentation and tokenisation using `ixa-pipe-tok`, run
+To perform sentence segmentation without tokenisation using `EuroParl Preprocessing Tools`, run
 
 ```shell
-./preprocess/segment-tokenise_ixaPipes.sh txt/
+./preprocess/segment_EuroParl.sh txt/
 ```
 
 For segmentation and tokenisation using `EuroParl Preprocessing Tools`, run
@@ -59,12 +60,17 @@ For segmentation and tokenisation using `EuroParl Preprocessing Tools`, run
 ./preprocess/segment-tokenise_EuroParl.sh txt/
 ```
 
-For segmentation only using `EuroParl Preprocessing Tools`, run
+For segmentation and subsequent tokenisation using `ixa-pipe-tok`, run
 
 ```shell
-./preprocess/segment_EuroParl.sh txt/
+./preprocess/segment-tokenise_ixaPipes.sh txt/
 ```
-**Side note:** If you only wish to tokenise the source files using `EuroParl Preprocessing Tools`, run
+
+**Notes:**
+- You only need to choose one of the three methods above!
+- You may use your own/other tools for sentence segmentation and tokenisation. If you choose to do so, make sure that segmented/tokenised files are files of the type `.txt`!
+- When using the EuroParl Preprocessing Tools, you may first only segment the source files and tokenise them later.
+- If you wish to tokenise the source files using `EuroParl Preprocessing Tools`, run
 
 ```shell
 ./preprocess/tokenise_EuroParl.sh txt/
