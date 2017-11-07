@@ -1,14 +1,16 @@
 # EuroParlExtract
 
-A set of scripts for the extraction of directional comparable and parallel corpora from the EuroParl distribution.
+EuroParlExtract is a user-friendly corpus processing toolkit for the compilation of directional sub-corpora, both comparable and parallel ones, from the original release of the European Parliament Proceedings Parallel Corpus (EuroParl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the EuroParl corpus, which in its original release does not provide support to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic translation research.
+
+The motivation behind the project is to make the wealth of linguistic data contained in the EuroParl corpus easily available to researchers and students in the field of translation studies and contrastive linguistics, even if they lack advanced scripting/programming skills. EuroParlExtract is therefore conceived as an addition to EuroParl aiming to lower the barrier to corpus-driven contrastive research.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These step-by-step instructions will guide you through all steps of the corpus extraction process. Since EuroParlExtract does not contain any corpus data, you will need to donload the original EuroParl release and apply to it the scripts provided in EuroParlExtract.
 
-### 1. Download EuroParlExtract
+### 1. Install EuroParlExtract
 
-What things you need to install the software and how to install them
+To run EuroParlExtract, you will need to install Python as well as a series of Python packages (to do). Once your Python environment has been set up accordingly, you just need to download and unpack EuroParlExtract.
 
 ````shell
 wget https://github.com/mustaszewski/europarl-extract/archive/v0.9.tar.gz
@@ -17,12 +19,19 @@ cd europarl-extract-0.9
 ````
 ### 2. Get EuroParl Source Files
 
-What things you need to install the software and how to install them
+If you have not yet downloaded the EuroParl corpus from http://www.statmt.org/europarl/ and placed it in the EuroParlExtract folder, do the following:
 
 ```shell
 wget http://www.statmt.org/europarl/v7/europarl.tgz
 tar xzf europarl.tgz
 ```
+### Preprocess Source Files
+
+```shell
+./preprocess/cleanSourceFiles.sh txt/
+tar xzf europarl.tgz
+```
+
 ### Installing
 
 A step by step series of examples that tell you have to get a development env running
