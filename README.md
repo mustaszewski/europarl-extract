@@ -46,21 +46,22 @@ python3 disambiguate_speaker_IDs.py txt/
 ### 3. Sentence Segmentation and Optional Tokenisation
 
 For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required. Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
-EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java (see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users may choose whatever they prefer.
 
-To perform sentence segmentation without tokenisation using `EuroParl Preprocessing Tools`, run
+EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java (see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
+
+To perform sentence segmentation without tokenisation using `EuroParl Preprocessing Tools`, run:
 
 ```shell
 ./preprocess/segment_EuroParl.sh txt/
 ```
 
-For segmentation and tokenisation using `EuroParl Preprocessing Tools`, run
+For segmentation and tokenisation using `EuroParl Preprocessing Tools`, run:
 
 ```shell
 ./preprocess/segment-tokenise_EuroParl.sh txt/
 ```
 
-For segmentation and subsequent tokenisation using `ixa-pipe-tok`, run
+For segmentation and subsequent tokenisation using `ixa-pipe-tok`, run:
 
 ```shell
 ./preprocess/segment-tokenise_ixaPipes.sh txt/
@@ -75,6 +76,7 @@ For segmentation and subsequent tokenisation using `ixa-pipe-tok`, run
 ```shell
 ./preprocess/tokenise_EuroParl.sh txt/
 ```
+## Extract Comparable and/or Parallel Corpora
 
 
 Say what the step will be
