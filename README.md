@@ -27,10 +27,17 @@ tar xzf europarl.tgz
 ```
 ### Preprocess Source Files
 
+The original EuroParl files need to be prepared for the use with EuroParlExtract. First, remove XML markup, empty lines etc. with the supplied bash script `$ cleanSourceFiles.sh path_to_input_folder/`, e.g.:
+
 ```shell
 ./preprocess/cleanSourceFiles.sh txt/
 tar xzf europarl.tgz
 ```
+Next, run the script `disambiguate_speaker_IDs.py` to avoid that two or more speaker turns are assigned the same speaker ID within one file. To do so, run:
+
+```shell
+python3 europarl_extract/disambiguate_speaker_IDs.py txt/
+```shell
 
 ### Installing
 
