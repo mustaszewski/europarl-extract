@@ -28,8 +28,7 @@ import argparse
 from unidecode import unidecode
 from string import punctuation
 from datetime import datetime
-import gale_church as gale
-
+from gale_church import gale_church_alignment
 
 ''' # Function not required
 def get_sourcefile(path):
@@ -69,16 +68,16 @@ def get_sourcefiles_from_folder(path):
 
 
 def analyse_sourcefile(inputfile):
-  """ Extract metadata from EuroParl source file and pass it to function write_speakerturn_to_df(current_line, next_line, speakerMatch, filename_base).
+  """ Extract metadata from EuroParl source file and pass it to function write_metadata_to_df(current_line, next_line, speakerMatch, filename_base).
     
   Arguments:
     inputfile (str) -- Path to input file.
 
   Returns:
-    Nothing; instead, it calls function write_speakerturn_to_df(current_line, next_line, speakerMatch, filename_base) to write metadata to data frame.
+    Nothing; instead, it calls function write_metadata_to_df(current_line, next_line, speakerMatch, filename_base) to write metadata to data frame.
     
   """
-  filename_base = inputfile.split("/")[-1].split(".txt")[0].split("ep-")[1] # basename of the input file, i.e. truncate folder path and prefix 'ep' and suffix '.txt'
+  filename_base = inputfile.split("/")[-1].split(".txt")[0].split("ep-")[1] # basename of the input file, i.e. truncate folder path and prefix 'ep' and suffix '.txt' from filename
   
   # Loop over input file line-by-line and match regex patterns indicating speaker turn metadata
   # To avoid EOF errors, reading file line by line looks behind instead of looking ahead
@@ -86,7 +85,7 @@ def analyse_sourcefile(inputfile):
   prev_line = None
   
   with open(inputfile, 'rt', encoding='utf-8', errors='ignore') as fl: # flag errors='ignore' is used in order to prevent program terminating upon encoding errors (one such error can be found in file /txt/pl/ep-09-10-22-009.txt)
-    # Loop over entire input file, extract chapterIDs, SpeakerIDs and language codes (the latter happens in write_speakerturn_to_df)
+    # Loop over entire input file, extract chapterIDs, SpeakerIDs and language codes (the latter happens in write_metadata_to_df)
     for line in fl:
       if not prev_line == None:
         current_line = prev_line.strip()
@@ -96,11 +95,11 @@ def analyse_sourcefile(inputfile):
           chapter_ID = chapterMatch.group(1)
         speakerMatch = speakerTag.search(current_line)
         if speakerMatch:
-          write_speakerturn_to_df(current_line, next_line, speakerMatch, filename_base) #(current_line, next_line, speakerMatch, day_ID, chapter_ID, filename_base)
+          write_metadata_to_df(current_line, next_line, speakerMatch, filename_base)
       prev_line = line.strip()
     
     # After reaching the last line of file (stored as prev_line), check once again whether there is a language tag in last line.
-    # This time, next_line is empty because it is the end of file, therefore we pass '' to function write_speakerturn_to_df().
+    # This time, next_line is empty because it is the end of file, therefore we pass '' to function write_metadata_to_df().
     if prev_line == None:
       prev_line = ''
     chapterMatch = chapterTag.search(prev_line)
@@ -108,7 +107,7 @@ def analyse_sourcefile(inputfile):
       chapter_ID = chapterMatch.group(1)
     speakerMatch = speakerTag.search(prev_line)
     if speakerMatch:
-      write_speakerturn_to_df(prev_line, '', speakerMatch, filename_base) # Here prev_line is the last line of input file and next_line is '' because of EOF
+      write_metadata_to_df(prev_line, '', speakerMatch, filename_base) # Here prev_line is the last line of input file and next_line is '' because of EOF
 ##### END OF FUNCTION DECLARATION
 
 
@@ -163,14 +162,14 @@ def group_speakers(all_name_forms):
     name_ocurrences = {}
     shared_names = {}
 
-    # iterate over pairwise_name_matches and count in dictionary name_ocurrences how many times each element of each parwise_name_match ocurrs 
+    # iterate over pairwise_name_matches and count in dictionary name_ocurrences how many times each element of each parwise_name_match occurs 
     for pnm in pairwise_name_matches:
       for name_short in pnm:
         if name_short in name_ocurrences:
           name_ocurrences[name_short] += 1
         else:
           name_ocurrences[name_short] = 1
-    # iterate over name_ocurrences (holding nr. of ocurrences of each short name in pairwise matches) to find all short names that ocurr more than once and hence will form nuclei to group all names belonging to them
+    # iterate over name_ocurrences (holding nr. of occurrences of each short name in pairwise matches) to find all short names that ocurr more than once and hence will form nuclei to group all names belonging to them
     for k,v in name_ocurrences.items():
       if v > 1:
         shared_names[k] = set()
@@ -332,7 +331,6 @@ def string_difference(s1, s2):
   s2 = s2 + "#" * (4-len(s2))
   diff = 0
   for i in range (len(s1)):
-    #print("%s vs %s" %(string1[i],string2[i]))
     if s1[i] != s2[i]:
       diff += 1
   return(diff)
@@ -398,7 +396,7 @@ def language_vote(originalLanguages, additionalLanguages):
 
 
 
-def write_speakerturn_to_df(line, nextline, speakerMatch, filename_base): #(line, nextline, speakerMatch, day_ID, chapter_ID, filename_base)
+def write_metadata_to_df(line, nextline, speakerMatch, filename_base):
   """ Write metadata identified within function analyse_sourcefile(fn) to data frame spaker_list.
     
   Arguments:
@@ -598,7 +596,7 @@ def clean_line(txt):
     txt(str) -- The cleaned text.
   """
   if isCleanOutput == "langs" or isCleanOutput == "both":
-    if langcode.search(txt) and not langcode_exception.search(txt): # and not langcode_exception.search(current_line): ##NEW
+    if langcode.search(txt) and not langcode_exception.search(txt):
       txt = re.sub(langcode, '', txt)
   if isCleanOutput == "xml" or isCleanOutput == "both":
     if xmlTag_all.search(txt):
@@ -754,7 +752,6 @@ def create_folders_parallel(outDir, sl, tl):
 
 
   
-#def align_statements(filename_input_sl, filename_input_tl, filename_output_tab, ids, sl, tl):
 def align_statements(filename_in_sl, filename_in_tl, filename_out_generic, ids, sl, tl):
   """ Align parallel statements using third-party implementation of Gale-Church algorithm.
   
@@ -877,7 +874,7 @@ def align_statements(filename_in_sl, filename_in_tl, filename_out_generic, ids, 
       continue
 
     # Run Gale-Church alignment algorithm to align SL sentences with TL sentences
-    sl_sents, tl_sents = gale.main(sentences_sl[fn], sentences_tl[fn])
+    sl_sents, tl_sents = gale_church_alignment(sentences_sl[fn], sentences_tl[fn])
     # Merge adjacent empty alignments at segment beginning/end to avoid zero-alignments
     sl_sents, tl_sents = postprocess_alignments(sl_sents, tl_sents)
     
@@ -1047,11 +1044,7 @@ def remove_unevenly_long_segments(sl_sents, tl_sents):
   p_positions_sl = [i for i, n in enumerate(sl_sents) if n == "<P>"] # Determine index positions of <P> markers
   p_positions_tl = [i for i, n in enumerate(tl_sents) if n == "<P>"] # Determine index positions of <P> markers
 
-  for i in reversed(range(len(p_positions_sl)-1)): # Iterate by index over reversed list of <P> indices, i.e. from last segment to 1st
-    
-    #if isCleanOutput == "langs" or isCleanOutput == "both:
-    #clean_line())
-    
+  for i in reversed(range(len(p_positions_sl)-1)): # Iterate by index over reversed list of <P> indices, i.e. from last segment to 1st    
     segmentStart_sl = p_positions_sl[i] # Determine start index of given SL segment
     segmentEnd_sl = p_positions_sl[i+1] # Determine end index of given SL segment
 
@@ -1170,7 +1163,7 @@ choices_tl = ['all', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR',
 parser = argparse.ArgumentParser(description="Extraction of Comparable or Parallel Corpora from EuroParl")
 subparsers = parser.add_subparsers(dest="subcommand")
 
-#  Subparser for Comparable Corpora
+# Subparser for Comparable Corpora
 parser_comparable = subparsers.add_parser("comparable", description="Extraction of comparable corpora from EuroParl")
 
 langs_comparable = parser_comparable.add_argument_group("LANGUAGES")
@@ -1190,7 +1183,7 @@ iooptions_comparable.add_argument("-al", "--additionalLanguageTags", action="sto
 iooptions_comparable.add_argument("-c", "--cleanOutput", nargs=1,
                                   choices=['langs', 'xml', 'both'], required=False, help='Clean output from XML tags and/or additional language tags')
 
-#  Subparser for Parallel Corpora
+# Subparser for Parallel Corpora
 parser_parallel = subparsers.add_parser("parallel", description="Extraction of parallel corpora from EuroParl")
 
 langs_parallel = parser_parallel.add_argument_group("LANGUAGES")
@@ -1229,7 +1222,7 @@ corpustype = args.subcommand
 inDir = args.inputFolder
 outDir = args.outputFolder
 
-#  Get list of input file(s) from input folder specified in CLI arguments
+# Get list of input file(s) from input folder specified in CLI arguments
 europarl_sourcefiles = get_sourcefiles_from_folder(inDir)
 
 '''
@@ -1293,7 +1286,7 @@ else:
   '''
   print("\n>> GENERATING LIST OF SPEAKER TURNS FROM INPUT FILES:\n")
   print("   Processing %s EuroParl source files in input folder %s\n" %(len(europarl_sourcefiles), inDir))
-  speaker_list = pd.DataFrame(columns= ('NAMES_FULL_COUNT', 'NAMES_NORMALISED_SUMMARY', 'NAMES_MATCHING', 'ORIGINAL_LANGUAGE', 'SL', 'ADDITIONAL_LANGUAGE')) #, 'ALTERNATIVE_LANGUAGE' # 'ID', as first tag was disabled
+  speaker_list = pd.DataFrame(columns= ('NAMES_FULL_COUNT', 'NAMES_NORMALISED_SUMMARY', 'NAMES_MATCHING', 'ORIGINAL_LANGUAGE', 'SL', 'ADDITIONAL_LANGUAGE')) 
   speaker_list.index.name = 'UNIQUE_ID'
   
 #  Loop over input files to generate list of speaker turns
@@ -1362,7 +1355,7 @@ if corpustype == "comparable":
       print("     Extracting non-translated text in language\t%s" %(tl))
 
     # Filter speaker_list to find statements originally uttered in given language and with unambiguous speaker
-    unambiguous_statemens_nontranslated = speaker_list[(speaker_list['SL'] == tl) & (speaker_list['NAMES_MATCHING'] != "xAMB")].index #sort_index(ascending=False).
+    unambiguous_statemens_nontranslated = speaker_list[(speaker_list['SL'] == tl) & (speaker_list['NAMES_MATCHING'] != "xAMB")].index
     # Put all non-translated statements for given language in dictionary statements_nontranslated
     # Keys:    Filenames of source files containing the statements
     # Values:  Speaker IDs of each non-translated statement
