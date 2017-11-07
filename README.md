@@ -6,14 +6,23 @@ A set of scripts for the extraction of directional comparable and parallel corpo
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### Prerequisites
+### 1. Download EuroParlExtract
 
 What things you need to install the software and how to install them
 
-```
-Give examples
-```
+````shell
+wget https://github.com/mustaszewski/europarl-extract/archive/v0.9.tar.gz
+tar xzf v0.9.tar.gz
+cd europarl-extract-0.9
+````
+### 2. Get EuroParl Source Files
 
+What things you need to install the software and how to install them
+
+```shell
+wget http://www.statmt.org/europarl/v7/europarl.tgz
+tar xzf europarl.tgz
+```
 ### Installing
 
 A step by step series of examples that tell you have to get a development env running
