@@ -33,11 +33,11 @@ The original EuroParl files need to be prepared for the use with EuroParlExtract
 ./preprocess/cleanSourceFiles.sh txt/
 tar xzf europarl.tgz
 ```
-Next, run the script `disambiguate_speaker_IDs.py` to avoid that two or more speaker turns are assigned the same speaker ID within one file. To do so, run:
+Next, run the script disambiguate_speaker_IDs.py to avoid that two or more speaker turns are assigned the same speaker ID within one file. To do so, run:
 
 ```shell
-python3 europarl_extract/disambiguate_speaker_IDs.py txt/
-```shell
+python3 disambiguate_speaker_IDs.py txt/
+```
 
 ### Installing
 
