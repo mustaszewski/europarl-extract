@@ -1,12 +1,12 @@
 # EuroParlExtract
 
-EuroParlExtract is a user-friendly corpus processing toolkit for the compilation of directional sub-corpora, both comparable and parallel ones, from the original release of the European Parliament Proceedings Parallel Corpus (EuroParl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the EuroParl corpus, which in its original release does not provide support to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic translation research.
+EuroParlExtract is a corpus processing toolkit for the compilation of directional sub-corpora, both comparable and parallel ones, from the original release of the European Parliament Proceedings Parallel Corpus (EuroParl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the EuroParl corpus, which in its original release does not provide support to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic translation research.
 
 The motivation behind the project is to make the wealth of linguistic data contained in the EuroParl corpus easily available to researchers and students in the field of translation studies and contrastive linguistics, even if they lack advanced scripting/programming skills. EuroParlExtract is therefore conceived as an addition to EuroParl aiming to lower the barrier to corpus-driven contrastive research.
 
-## Getting Started
+## Installation
 
-These step-by-step instructions will guide you through all steps of the corpus extraction process. Since EuroParlExtract does not contain any corpus data, you will need to donload the original EuroParl release and apply to it the scripts provided in EuroParlExtract.
+These step-by-step instructions will guide you through all steps of the corpus extraction process. Since EuroParlExtract does not contain any corpus data, you will need to [download](#europarl-extract#2-get-europarl-source-files) the original EuroParl release and apply to it the scripts provided in EuroParlExtract.
 
 ### 1. Install EuroParlExtract
 
