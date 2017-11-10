@@ -10,7 +10,7 @@ EuroParlExtract comprises a number of scripts written in Python3 and Bash for Li
 
 The following step-by-step instructions will guide you through the corpus extraction process.
 
-### 1. Instal Required Pythong Packages
+### 1. Install Required Python Packages
 
 EuroParlExtract requires Python 3 (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
 
