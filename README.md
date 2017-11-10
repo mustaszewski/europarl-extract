@@ -6,7 +6,7 @@ The motivation behind the project is to make the wealth of linguistic data conta
 
 ## Installation
 
-These step-by-step instructions will guide you through all steps of the corpus extraction process. Since EuroParlExtract does not contain any corpus data, you will need to [download](#europarl-extract#2-get-europarl-source-files) the original EuroParl release and apply to it the scripts provided in EuroParlExtract.
+These step-by-step instructions will guide you through all steps of the corpus extraction process. Since EuroParlExtract does not contain any corpus data, you will need to [download](#2-get-europarl-source-files) the original EuroParl release and apply to it the scripts provided in EuroParlExtract.
 
 ### 1. Install EuroParlExtract
 
