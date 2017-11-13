@@ -6,14 +6,13 @@
 # Make sure that this script has permission for execution as program. If not, set permissions by:
 # $ chmod +x europarl_extract/preprocess/segment-tokenise_ixaPipes.sh
 #
-# Usage: europarl_extract/preprocess/segment-tokenise_ixaPipes.sh txt/
+# Usage: preprocess/segment-tokenise_ixaPipes.sh txt/
 
 infolder=$1
 
 
-printf "\nSTEP 2: Segmenting and tokenising sentences in EuroParl source files in folder $infolder\n"
+printf "\nSTEP 3: Segmenting and tokenising sentences in EuroParl source files in folder $infolder\n"
 printf "\n... Please wait, this process will take a while!\n\n"
-
 
 
 for folder in $(find $infolder -mindepth 1 -type d)
@@ -24,7 +23,7 @@ do
 	for file in $(find $folder -type f -name '*.txt')
 	do
 		#lang=$(echo $file | grep -o '/[[:lower:]]\{2\}/' | head -c 3 | tail -c 2)
-		cat $file | java -jar europarl_extract/preprocess/thirdpartytools/ixa-pipe-tok-1.8.4.jar tok -l $lang -o oneline --segmentOnLinebreak single --verbose no --tokeniseXML no > $file.tok
+		cat $file | java -jar preprocess/thirdpartytools/ixa-pipe-tok-1.8.4.jar tok -l $lang -o oneline --segmentOnLinebreak single --verbose no --tokeniseXML no > $file.tok
 		mv $file.tok $file
 	done
 	printf "\tDONE!\n"

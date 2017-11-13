@@ -7,7 +7,7 @@
 #
 # Usage example:
 # $ cd europarl
-# $ ./europarl_extract/preprocess/cleanSourceFiles.sh txt/
+# $ ./preprocess/cleanSourceFiles.sh txt/
 #
 # Make sure that this script has permission for execution as program:
 # $ ls -l europarl_extract/preprocess/cleanSourceFiles.sh
@@ -24,12 +24,12 @@ do
 	printf "\tProcessing folder $folder\t..."
 	for file in $(find $folder -type f -name '*.txt')
 	do
-		sed -i '/^$/d' $file
-		sed -i '/^<BRK>$/d' $file
-		sed -i '/^<\/.*>$/d' $file
-		sed -i '/^<SpeakerType>/d' $file
-		sed -i 's/<P ALIGN=\"JUSTIFY\">/<P>/g' $file
-		sed -i 's/LANGUAGE="UK"/LANGUAGE="EN"/g' $file
+		sed -i '/^[[:space:]]*$/d' $file # delete empty lines and lines containing only whitespace characters
+		sed -i '/^<BRK>$/d' $file # delete lines containing XML markup <BRK>
+		sed -i '/^<\/.*>$/d' $file # delete lines containing closing XML tags </xyz>
+		sed -i '/^<SpeakerType>/d' $file # delete lines consisting of <SpeakerType> only
+		sed -i 's/<P ALIGN=\"JUSTIFY\">/<P>/g' $file # replace <P ALIGN> with <P>
+		sed -i 's/LANGUAGE="UK"/LANGUAGE="EN"/g' $file # change language code UK to EN
 	done
 	printf "\tDONE!\n"
 done

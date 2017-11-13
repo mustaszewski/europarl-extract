@@ -6,12 +6,12 @@
 # Make sure that this script has permission for execution as program. If not, set permissions by:
 # $ chmod +x europarl_extract/preprocess/segment-tokenise_EuroParl.sh
 #
-# Usage: europarl_extract/preprocess/segment-tokenise_EuroParl.sh txt/
+# Usage: preprocess/segment-tokenise_EuroParl.sh txt/
 
 
 infolder=$1
 
-printf "\nSTEP 2: Segmenting and tokenising sentences in EuroParl source files in folder $infolder\n"
+printf "\nSTEP 3: Segmenting and tokenising sentences in EuroParl source files in folder $infolder\n"
 printf "\n... Please wait, this process may take a while!\n\n"
 
 for folder in $(find $infolder -mindepth 1 -type d)
@@ -21,8 +21,8 @@ do
 
 	for file in $(find $folder -type f -name '*.txt')
 	do
-		europarl_extract/preprocess/thirdpartytools/split-sentences.perl -q -l $lang < $file > $file.seg
-		europarl_extract/preprocess/thirdpartytools/tokenizer.perl -q -l $lang < $file.seg > $file.seg.tok
+		preprocess/thirdpartytools/split-sentences.perl -q -l $lang < $file > $file.seg
+		preprocess/thirdpartytools/tokenizer.perl -q -l $lang < $file.seg > $file.seg.tok
 		rm $file
 		rm $file.seg
 		mv $file.seg.tok $file

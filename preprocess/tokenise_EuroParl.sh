@@ -6,12 +6,12 @@
 # Make sure that this script has permission for execution as program. If not, set permissions by:
 # $ chmod +x europarl_extract/preprocess/tokenise_EuroParl.sh
 #
-# Usage: europarl_extract/preprocess/tokenise_EuroParl.sh txt/
+# Usage: preprocess/tokenise_EuroParl.sh txt/
 
 
 infolder=$1
 
-printf "\nSTEP 2: Tokenising EuroParl source files in folder $infolder\n"
+printf "\nSTEP 3: Tokenising EuroParl source files in folder $infolder\n"
 printf "\n... Please wait, this process may take a while!\n\n"
 
 for folder in $(find $infolder -mindepth 1 -type d)
@@ -21,7 +21,7 @@ do
 
 	for file in $(find $folder -type f -name '*.txt')
 	do
-		europarl_extract/preprocess/thirdpartytools/tokenizer.perl -q -l $lang < $file > $file.tok
+		preprocess/thirdpartytools/tokenizer.perl -q -l $lang < $file > $file.tok
 		mv $file.tok $file
 
 	done
