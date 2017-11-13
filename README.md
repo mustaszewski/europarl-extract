@@ -1,22 +1,100 @@
 # EuroParlExtract
 
-A set of scripts for the extraction of directional comparable and parallel corpora from the EuroParl distribution.
+EuroParlExtract is a corpus processing toolkit for the compilation of directional sub-corpora, both comparable and parallel ones, from the original release of the European Parliament Proceedings Parallel Corpus (EuroParl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the EuroParl corpus, which in its original release does not provide support to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic translation research.
+
+The motivation behind the project is to make the wealth of linguistic data contained in the EuroParl corpus easily available to researchers and students in the field of translation studies and contrastive linguistics, even if they lack advanced scripting/programming skills. EuroParlExtract is therefore conceived as an addition to EuroParl aiming to lower the barrier to corpus-driven contrastive research.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+EuroParlExtract comprises a number of scripts written in Python3 and Bash for Linux; Windows is not yet supported. Some parts of the package are based on third-party software.
 
-### Prerequisites
+The following step-by-step instructions will guide you through the corpus extraction process.
 
-What things you need to install the software and how to install them
+### 1. Install Required Python Packages
 
+EuroParlExtract requires Python 3 (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
+
+```shell
+# Install Pandas:
+pip3 install pandas
 ```
-Give examples
+
+```shell
+# Install Unidecode:
+pip3 install unidecode
+```
+### 2. Download EuroParlExtract
+
+Once your Python environment has been set up properly, you need to download and unpack the EuroParlExtract scripts:
+
+````shell
+wget https://github.com/mustaszewski/europarl-extract/archive/v0.9.tar.gz
+tar xzf v0.9.tar.gz
+````
+You are now ready to use EuroParlExtract to extract the desired corpora form EuroParl source files!
+
+## Extracting Corpora
+
+### 1. Get EuroParl Source Files
+
+Since EuroParlExtract itself does not contain any corpus data but only corpus extraction scripts, you first need to download the original EuroParl release. If you have already downloaded the EuroParl corpus from http://www.statmt.org/europarl/ and placed the source files in the EuroParlExtract folder, you can go directly to step 2. Otherwise, do the following:
+
+```shell
+cd europarl-extract-0.9
+wget http://www.statmt.org/europarl/v7/europarl.tgz
+tar xzf europarl.tgz
+```
+This will download and unpack the compressed corpus in the folder `europarl-extract-0.9/txt/`. **Attention:** Please retain the original directory structure and files names of the EuroParl corpus, otherwise the extraction will fail!
+
+### 2. Remove XML Markup and Empty Lines
+
+The original EuroParl source files need to be prepared for the use with EuroParlExtract. First, remove XML markup, empty lines etc. with the supplied bash script `$ cleanSourceFiles.sh path_to_input_folder/`, e.g.:
+
+```shell
+./preprocess/cleanSourceFiles.sh txt/
 ```
 
-### Installing
+### 3. Disambiguate Statement IDs
 
-A step by step series of examples that tell you have to get a development env running
+Next, run the script `disambiguate_speaker_IDs.py` to avoid that two or more statements are assigned the same ID within one file. To do so, run:
+
+```shell
+python3 disambiguate_speaker_IDs.py txt/
+```
+
+### 4. Sentence Segmentation and Optional Tokenisation
+
+For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required (albeit useful for future analyses). Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
+
+EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri(see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
+
+To perform sentence segmentation without tokenisation using *EuroParl Preprocessing Tools*, run:
+
+```shell
+./preprocess/segment_EuroParl.sh txt/
+```
+
+For segmentation and tokenisation using *EuroParl Preprocessing Tools*, run:
+
+```shell
+./preprocess/segment-tokenise_EuroParl.sh txt/
+```
+
+For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
+
+```shell
+./preprocess/segment-tokenise_ixaPipes.sh txt/
+```
+
+**Notes:**
+- You only need to choose one of the three methods above!
+- You may use your own/other tools for sentence segmentation and tokenisation. If you choose to do so, make sure that segmented/tokenised files are files of the type `.txt` and that XML markup is retained.
+- When using the EuroParl Preprocessing Tools, you may first only segment the source files and tokenise them later.
+- Running *ixa-pipe-tok* requires Java 1.7+ on your system. You can install it with `sudo apt-get install openjdk-8-jdk`.
+
+# TO DO REST
+## Extract Comparable and/or Parallel Corpora
+
 
 Say what the step will be
 
