@@ -92,6 +92,18 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 - When using the EuroParl Preprocessing Tools, you may first only segment the source files and tokenise them later.
 - Running *ixa-pipe-tok* requires Java 1.7+ on your system. You can install it with `sudo apt-get install openjdk-8-jdk`.
 
+
+### 5. Run Extraction Scripts
+
+After the preprocessing steps 2 to 4, the EuroParl source files are now ready for the extraction process using the script `extract.py`.
+
+
+```shell
+./preprocess/segment-tokenise_EuroParl.sh txt/
+```
+
+For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in 
+
 # TO DO REST
 ## Extract Comparable and/or Parallel Corpora
 
