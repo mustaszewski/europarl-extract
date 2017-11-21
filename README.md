@@ -12,7 +12,7 @@ The following step-by-step instructions will guide you through the corpus extrac
 
 ### 1. Install Required Python Packages
 
-EuroParlExtract requires Python 3 (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
+EuroParlExtract requires **Python 3** (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
 
 ```shell
 # Install Pandas:
@@ -48,7 +48,7 @@ This will download and unpack the compressed corpus in the folder `europarl-extr
 
 ### 2. Remove XML Markup and Empty Lines
 
-The original EuroParl source files need to be prepared for the use with EuroParlExtract. First, remove XML markup, empty lines etc. with the supplied bash script `$ cleanSourceFiles.sh path_to_input_folder/`, e.g.:
+The original EuroParl source files need to be prepared for the use with EuroParlExtract. First, remove spurious XML markup, empty lines etc. with the supplied bash script `cleanSourceFiles.sh path_to_input_folder/`, e.g.:
 
 ```shell
 ./preprocess/cleanSourceFiles.sh txt/
@@ -56,7 +56,7 @@ The original EuroParl source files need to be prepared for the use with EuroParl
 
 ### 3. Disambiguate Statement IDs
 
-Next, run the script `disambiguate_speaker_IDs.py` to avoid that two or more statements are assigned the same ID within one file. To do so, run:
+Next, run the script `disambiguate_speaker_IDs.py path_to_input_folder/` to avoid that two or more statements are assigned the same ID within one file. To do so, run:
 
 ```shell
 python3 disambiguate_speaker_IDs.py txt/
@@ -66,7 +66,7 @@ python3 disambiguate_speaker_IDs.py txt/
 
 For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required (albeit useful for future analyses). Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
 
-EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri(see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
+EuroParlExtract supports **two different third-party tools** users can choose from 1) *ixa-pipe-tok*, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri(see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the *Europarl Preprocessing Tools* implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
 
 To perform sentence segmentation without tokenisation using *EuroParl Preprocessing Tools*, run:
 
@@ -89,14 +89,26 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 **Notes:**
 - You only need to choose one of the three methods above!
 - You may use your own/other tools for sentence segmentation and tokenisation. If you choose to do so, make sure that segmented/tokenised files are files of the type `.txt` and that XML markup is retained.
-- When using the EuroParl Preprocessing Tools, you may first only segment the source files and tokenise them later.
+- When using *EuroParl Preprocessing Tools*, you may first only segment the source files and tokenise them later.
 - Running *ixa-pipe-tok* requires Java 1.7+ on your system. You can install it with `sudo apt-get install openjdk-8-jdk`.
 
 
 ### 5. Run Extraction Scripts
 
-After the preprocessing steps 2 to 4, the EuroParl source files are now ready for the extraction process using the script `extract.py`.
+After the preliminary steps 1 to 4, the EuroParl source files are ready for the extraction process using the script `extract.py`.
 
+To extract **comparable corpora**, do
+basic syntax:
+
+```shell
+$ python3 extract.py -sl {source language(s)} -tl {target language(s)} -i <input_folder> -o <output_folder> [-s <statement_file>] [-al] [-c {cleanup_option}] [-d]
+```
+For example:
+```shell
+$ python3 extract.py -sl PL SL BG -tl all -i txt/ -o corpora/ -s data/europarl_statements.csv -al -c both
+```
+
+To extract **parallel corpora**, do
 
 ```shell
 ./preprocess/segment-tokenise_EuroParl.sh txt/
