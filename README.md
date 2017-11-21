@@ -97,15 +97,23 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 
 After the preliminary steps 1 to 4, the EuroParl source files are ready for the extraction process using the script `extract.py`.
 
-To extract **comparable corpora**, do
-basic syntax:
+**Comparable corpora**
+
+To extract comparable corpora, the following arguements need to be provided:
+
+- ` -sl {source language(s)}`: Choose one or more source language code(s) separated by blanks. To show a list of supported languages, do `python3 extract.py comparable --help`.
+- `-tl {target language(s)}`: Choose one or more target language code(s) separated by blanks. To show a list of supported languages, do `python3 extract.py comparable --help`.
+- `-i <input_folder>`:  Path to input folder containing EuroParl source files, usually txt/.
+- `-o <output_folder>`: Path to output folder.
+- `-s <statement_file>`: Optional argument to supply precompiled statement list (CSV format) rather than creating the list (recommended - this option extremly speeds up the extraction process!)
+- `-al`: Optional argument to disseminate additional language tags acros source files (recommended - largely increases number of statements!)
+- `-c {langs|xml|both}`: Optional argument to remove language identifier and/or speaker metadata from output files.
+
+Fpr example:
 
 ```shell
-$ python3 extract.py -sl {source language(s)} -tl {target language(s)} -i <input_folder> -o <output_folder> [-s <statement_file>] [-al] [-c {cleanup_option}] [-d]
-```
-For example:
-```shell
 $ python3 extract.py -sl PL SL BG -tl all -i txt/ -o corpora/ -s data/europarl_statements.csv -al -c both
+# Extracts non-translated text in all EuroParl languages plus translation in all EuroParl languages from Polish, Slovene and Bulgarian 
 ```
 
 To extract **parallel corpora**, do
