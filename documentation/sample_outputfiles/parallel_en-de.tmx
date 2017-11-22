@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<tmx version="1.4">
+ <header creationtool="EuroParlExtract" creationtoolversion="1.0" creationdate="2017-11-22T18:25:23.766516" segtype="sentence" adminlang="en-GB" srclang="en" datatype="plaintext">
+ </header>
+ <body>
+  <tu>
+   <tuv xml:lang="en"><seg>Mr President, I see in the Minutes that two Members spoke yesterday about delayed flights to Strasbourg on Monday.</seg></tuv>
+   <tuv xml:lang="de"><seg>Herr Präsident, ich entnehme dem Protokoll, daß gestern zwei Abgeordnete über die am Montag aufgetretenen Verspätungen bei Flügen nach Straßburg berichteten.</seg></tuv>
+  </tu>
+  <tu>
+   <tuv xml:lang="en"><seg>I would like to add that the flight from Amsterdam' s Schipol airport was also delayed and then cancelled.</seg></tuv>
+   <tuv xml:lang="de"><seg>Ich möchte hinzufügen, daß auch der Flug vom Amsterdamer Flughafen Schiphol aus Verspätung hatte und später annulliert wurde.</seg></tuv>
+  </tu>
+  <tu>
+   <tuv xml:lang="en"><seg>We were diverted to Basel-Mulhouse Airport.</seg></tuv>
+   <tuv xml:lang="de"><seg>Wir wurden zum Flughafen Basel-Mülhausen umgeleitet.</seg></tuv>
+  </tu>
+ </body>
+</tmx>
