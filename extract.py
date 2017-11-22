@@ -595,10 +595,10 @@ def clean_line(txt):
   Returns:
     txt(str) -- The cleaned text.
   """
-  if isCleanOutput == "langs" or isCleanOutput == "both":
+  if isCleanOutput == "lang" or isCleanOutput == "both":
     if langcode.search(txt) and not langcode_exception.search(txt):
       txt = re.sub(langcode, '', txt)
-  if isCleanOutput == "xml" or isCleanOutput == "both":
+  if isCleanOutput == "speaker" or isCleanOutput == "both":
     if xmlTag_all.search(txt):
       txt = ""
   txt = re.sub('\s{2,}', ' ', txt)    
@@ -908,7 +908,7 @@ def write_to_tab(fn, metadata, sl_sents, tl_sents):
   fn_tab = fn.replace("xyz", "tab") # Replace generic output name with output name for tab format
   open(fn_tab, mode='w').close() # make sure output file exists
   with open(fn_tab, mode='a', encoding='utf-8') as fl_out_tab:
-    if not (isCleanOutput == "xml" or isCleanOutput == "both"):
+    if not (isCleanOutput == "speaker" or isCleanOutput == "both"):
       fl_out_tab.write("%s\n" %(metadata))
     for i in range(len(sl_sents)):
       if sl_sents[i] == "<P>":
@@ -1181,7 +1181,7 @@ iooptions_comparable.add_argument("-s", "--statementList", nargs=1, required=Fal
                     help="Supply External Statement List in CSV Format")
 iooptions_comparable.add_argument("-al", "--additionalLanguageTags", action="store_true", required=False, help="Disseminate additional language tags to increase recall of segments")
 iooptions_comparable.add_argument("-c", "--cleanOutput", nargs=1,
-                                  choices=['langs', 'xml', 'both'], required=False, help='Clean output from XML tags and/or additional language tags')
+                                  choices=['lang', 'speaker', 'both'], required=False, help='Clean output from speaker tags and/or additional language tags')
 
 # Subparser for Parallel Corpora
 parser_parallel = subparsers.add_parser("parallel", description="Extraction of parallel corpora from EuroParl")
@@ -1258,7 +1258,7 @@ if args.statementList:
 
 if args.cleanOutput:
   isCleanOutput = args.cleanOutput[0]
-  if isCleanOutput != "langs":
+  if isCleanOutput != "lang":
     min_lines_per_file = 1
   else:
     min_lines_per_file = 2
