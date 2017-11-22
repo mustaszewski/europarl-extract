@@ -12,7 +12,7 @@ The following step-by-step instructions will guide you through the corpus extrac
 
 ### 1. Install Required Python Packages
 
-EuroParlExtract requires Python 3 (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
+EuroParlExtract requires **Python 3** (you can download it from https://www.python.org/downloads/) as well as the Python packages **Pandas** and **Unidecode**. If they are not yet installed on your system, you can easily install them using pip (to install pip, execute `sudo apt-get install python3-pip` from your terminal):
 
 ```shell
 # Install Pandas:
@@ -48,7 +48,7 @@ This will download and unpack the compressed corpus in the folder `europarl-extr
 
 ### 2. Remove XML Markup and Empty Lines
 
-The original EuroParl source files need to be prepared for the use with EuroParlExtract. First, remove XML markup, empty lines etc. with the supplied bash script `$ cleanSourceFiles.sh path_to_input_folder/`, e.g.:
+The original EuroParl source files need to be prepared for the use with EuroParlExtract. First, remove spurious XML markup, empty lines etc. with the supplied bash script `cleanSourceFiles.sh path_to_input_folder/`, e.g.:
 
 ```shell
 ./preprocess/cleanSourceFiles.sh txt/
@@ -56,7 +56,7 @@ The original EuroParl source files need to be prepared for the use with EuroParl
 
 ### 3. Disambiguate Statement IDs
 
-Next, run the script `disambiguate_speaker_IDs.py` to avoid that two or more statements are assigned the same ID within one file. To do so, run:
+Next, run the script `disambiguate_speaker_IDs.py path_to_input_folder/` to avoid that two or more statements are assigned the same ID within one file. To do so, run:
 
 ```shell
 python3 disambiguate_speaker_IDs.py txt/
@@ -66,7 +66,7 @@ python3 disambiguate_speaker_IDs.py txt/
 
 For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required (albeit useful for future analyses). Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
 
-EuroParlExtract offers **two different tools** users can choose from 1) `ixa-pipe-tok`, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri(see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the `Europarl Preprocessing Tools` implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
+EuroParlExtract supports **two different third-party tools** users can choose from 1) *ixa-pipe-tok*, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri(see http://ixa2.si.ehu.es/ixa-pipes/); or 2) the sentence splitter and tokeniser of the *Europarl Preprocessing Tools* implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl/). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
 
 To perform sentence segmentation without tokenisation using *EuroParl Preprocessing Tools*, run:
 
@@ -89,8 +89,66 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 **Notes:**
 - You only need to choose one of the three methods above!
 - You may use your own/other tools for sentence segmentation and tokenisation. If you choose to do so, make sure that segmented/tokenised files are files of the type `.txt` and that XML markup is retained.
-- When using the EuroParl Preprocessing Tools, you may first only segment the source files and tokenise them later.
+- When using *EuroParl Preprocessing Tools*, you may first only segment the source files and tokenise them later.
 - Running *ixa-pipe-tok* requires Java 1.7+ on your system. You can install it with `sudo apt-get install openjdk-8-jdk`.
+
+
+### 5. Run Extraction Scripts
+
+After the preliminary steps 1 to 4, the EuroParl source files are ready for the extraction process calling the main script `extract.py` with either the `parallel` or `comparable` subcommand.
+
+**Parallel corpora**
+
+Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language pairs, the script extracts all available bitexts from the EuroParl source files and saves them to a dedicated folder indicating the language pair. From the 21 EuroParl languages, users may choose any language pair, including an option to extract all 420 language pairs in one go. To extract parallel corpora, the following arguments need to be specified:
+
+- `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose all source languages.
+- `-tl [target_language ...]`: Choose one or more target language(s), separated by blanks. For a list of supported languages, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose all target languages.
+- `-i <input_folder>`:  Path to input folder containing EuroParl source files, usually txt/.
+- `-o <output_folder>`: Path to output folder where subfolders for each language pair will be created.
+- `-f [txt|tab|tmx ...]`: Choose one or more output format(s), separated by blanks. `txt` creates non-aligned source and target text files stored separately, `tab` creates sentence-aligned source-target files where each line contains source and target segments separated by tabulator, `tmx` creates sentence-aligned TMX files.
+- `-s <statement_file>`: Optional argument to supply a precompiled statement list (CSV format) rather than creating the list from EuroParl source files from scratch (**recommended** - extremly speeds up the extraction process!) The list can be found in the data folder of the EuroParlExtract distribution.
+- `-al`: Optional argument to disseminate additional language tags across source files (**recommended** - largely increases number of statements!)
+- `-c {langs|speaker|both}`: Optional argument to remove language identifier and/or speaker metadata from output files.
+- `-d`: Optional argument to create a (large!) log file for debugging (not recommended - use only if you encounter problems).
+
+Example:
+
+```shell
+$ python3 extract.py parallel -sl PL BG -tl all -i txt/ -o corpora/ -f txt tab -s data/europarl_statements.csv -al -c both
+# Extracts parallel corpora from Polish to all other EuroParl languages and Bulgarian to all other EuroParl languages,
+# stores texts in sentence-aligned tab-separated and non-aligned format and removes metadata markup from output files.
+```
+
+
+**Comparable corpora**
+
+Contrary to parallel corpora, comparable corpora consist of separate monolingual files in the choosen target language(s) rather than source-target text pairs. 
+To extract comparable corpora, the following arguements need to be provided:
+
+
+
+Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language pairs, the script extracts all available bitexts from the EuroParl source files and saves them to a dedicated folder indicating the language pair. From the 21 EuroParl languages, users may choose any language pair, including an option to extract all 420 language pairs in one go. To extract parallel corpora, the following arguments need to be specified:
+
+- `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose all source languages.
+- `-tl [target_language ...]`: Choose one or more target language(s), separated by blanks. For a list of supported languages, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose all target languages.
+- `-i <input_folder>`:  Path to input folder containing EuroParl source files, usually txt/.
+- `-o <output_folder>`: Path to output folder where subfolders for each language pair will be created.
+- `-f [txt|tab|tmx ...]`: Choose one or more output format(s), separated by blanks. `txt` creates non-aligned source and target text files stored separately, `tab` creates sentence-aligned source-target files where each line contains source and target segments separated by tabulator, `tmx` creates sentence-aligned TMX files.
+- `-s <statement_file>`: Optional argument to supply a precompiled statement list (CSV format) rather than creating the list from EuroParl source files from scratch (**recommended** - extremly speeds up the extraction process!) The list can be found in the data folder of the EuroParlExtract distribution.
+- `-al`: Optional argument to disseminate additional language tags across source files (**recommended** - largely increases number of statements!)
+- `-c {langs|speaker|both}`: Optional argument to remove language identifier and/or speaker metadata from output files.
+- `-d`: Optional argument to create a (large!) log file for debugging (not recommended - use only if you encounter problems).
+
+
+Fpr example:
+
+To extract **parallel corpora**, do
+
+```shell
+./preprocess/segment-tokenise_EuroParl.sh txt/
+```
+
+For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in 
 
 # TO DO REST
 ## Extract Comparable and/or Parallel Corpora
