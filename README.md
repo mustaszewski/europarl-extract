@@ -138,7 +138,9 @@ Example:
 
 ```shell
 $ python3 extract.py comparable -sl all -tl PL BG -i txt/ -o corpora/ -s corpora/europarl_statements.csv -al -c speaker
-# Extracts texts originally written in Polish and texts originally written in Bulgarian as well as texts translated into these two languages from all other EuroParl languages; speaker metadata removed from output.
+# Extracts texts originally written in Polish and texts originally written in Bulgarian
+# as well as texts translated into these two languages from all other EuroParl languages;
+# speaker metadata removed from output.
 ```
 
 # TO DO REST
