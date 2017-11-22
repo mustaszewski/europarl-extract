@@ -101,7 +101,7 @@ After the preliminary steps 1 to 4, the EuroParl source files are ready for the 
 
 Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language pairs, the script extracts all available bitexts from the EuroParl source files and saves them to a dedicated folder indicating the language pair. From the 21 EuroParl languages, users may choose any language pair, including an option to extract all 420 language pairs in one go. To extract parallel corpora, the following arguments need to be specified:
 
-- `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose all source languages.
+- `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py parallel --help`. Note: you may also choose all source languages.
 - `-tl [target_language ...]`: Choose one or more target language(s), separated by blanks. For a list of supported languages, display the help message by calling `python3 extract.py parallel --help`. Note: you may also choose all target languages.
 - `-i <input_folder>`:  Path to input folder containing EuroParl source files, usually txt/.
 - `-o <output_folder>`: Path to output folder where subfolders for each language pair will be created.
