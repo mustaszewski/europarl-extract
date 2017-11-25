@@ -33,7 +33,6 @@ Once your Python environment has been set up properly, you need to download and 
 wget https://github.com/mustaszewski/europarl-extract/archive/v0.9.tar.gz
 tar xzf v0.9.tar.gz
 ````
-You are now ready to use EuroparlExtract to extract the desired corpora form Europarl source files!
 
 ### 3. Get Europarl Source Files
 
