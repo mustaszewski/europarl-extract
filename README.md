@@ -48,7 +48,7 @@ This will download and unpack the compressed corpus in the folder `europarl-extr
 
 ## Preprocess Europarl Source Files
 
-The original Europarl source files need to be cleaned and normalised before applying the corpus extraction scripts. To perform the required preprocessing steps, you can **either** follow the preprocessing steps 1 to 3 **or** execute `./preprocess/preprocess.sh txt/` and proceed directly to [Extract Corpora](#extract-corpora).
+The original Europarl source files need to be cleaned and normalised before applying the corpus extraction scripts. To perform the required preprocessing steps, you can **either** follow the preprocessing steps 1 to 3 **or** execute `./preprocess/preprocess.sh txt/` and then proceed directly to [Extract Corpora](#extract-corpora).
 
 ### 1. Remove XML Markup and Empty Lines
 
@@ -101,7 +101,7 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 
 After preprocessing, the Europarl source files are ready for the extraction process calling the main script `extract.py` with either the `parallel` or `comparable` subcommand.
 
-### Parallel Corpora
+### a) Parallel Corpora
 
 Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language pairs, the script extracts all available bitexts from the Europarl source files and saves them to a dedicated folder indicating the language pair. From the 21 Europarl languages, users may choose any language pair, including an option to extract all 420 language pairs in one go. To extract parallel corpora, the following arguments need to be specified (see also help message `python3 extract.py parallel --help`):
 
@@ -124,7 +124,7 @@ python3 extract.py parallel -sl PL BG -tl all -i txt/ -o corpora/ -f txt tab -s 
 # speaker and language metadata markup removed from output files.
 ```
 
-### Comparable Corpora
+### b) Comparable Corpora
 
 Contrary to parallel corpora, comparable corpora consist of single monolingual files in the choosen language(s) rather than of bilingual source-target text pairs. In comparable corpora, two sections can be distinguished: one containing only texts originally produced in a given language (e.g. non-translated English), and one containing only texts that have been translated into a given language (e.g. translated English). The latter can be further subdivided according to source languages (e.g. English texts translated from Polish, English texts translated from German ...). Note that no source texts are stored in the translated section of comparable corpora, i.e. only the target side of each language combination is extracted, while information about the source language is only used as metadata. To extract comparable corpora, the following arguments need to be specified (see also help message `python3 extract.py comparable --help`):
 
