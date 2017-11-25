@@ -1,8 +1,8 @@
  [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-# EuroParlExtract
+# EuroparlExtract
 
-EuroParlExtract is a corpus processing toolkit for the compilation of directional sub-corpora, both bilingual parallel and monoloingual comparable ones, from the original release of the European Parliament Proceedings Parallel Corpus (Europarl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the Europarl corpus, which in its original release does not provide tools to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic and translation research.
+EuroparlExtract is a corpus processing toolkit for the compilation of directional sub-corpora, both bilingual parallel and monoloingual comparable ones, from the original release of the European Parliament Proceedings Parallel Corpus (Europarl) by Philipp Koehn (2005). It therefore aims to maximise the utility of the Europarl corpus, which in its original release does not provide tools to compile directional subcorpora (i.e. corpora where the source and target language are made explicit for each language pair) and is therefore of limited use for linguistic and translation research.
 
 The motivation behind the project is to make the wealth of linguistic data contained in the Europarl corpus easily available to researchers and students in the field of translation studies and contrastive linguistics, even if they lack advanced scripting/programming skills. EuroparlExtract is therefore conceived as an addition to Europarl aiming to lower the barrier to corpus-driven contrastive research.
 
