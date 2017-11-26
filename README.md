@@ -47,7 +47,7 @@ This will download and unpack the compressed corpus in the folder `europarl-extr
 
 ## Preprocess Europarl Source Files
 
-The original Europarl source files need to be cleaned and normalised before applying the corpus extraction scripts. To perform the required preprocessing steps, you can **either** follow the preprocessing steps 1 to 3 **or** execute `./preprocess/preprocess.sh txt/` and then proceed directly to [Extract Corpora](#extract-corpora).
+The original Europarl source files need to be cleaned and normalised before applying the corpus extraction scripts. To perform the required preprocessing steps, you can **either** follow the preprocessing steps 1 to 3 **or** execute `./preprocess/preprocess_batch.sh txt/` and then proceed directly to [Extract Corpora](#extract-corpora).
 
 ### 1. Remove XML Markup and Empty Lines
 
