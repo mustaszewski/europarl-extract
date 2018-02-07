@@ -36,7 +36,7 @@ tar xzf v0.9.tar.gz
 
 ### 3. Get Europarl Source Files
 
-Since EuroparlExtract itself does not contain any corpus data but only corpus extraction scripts, you first need to download the original Europarl release. If you have already downloaded the Europarl corpus from http://www.statmt.org/europarl and placed the source files in the EuroparlExtract folder, you can go directly to step 2. Otherwise, do the following:
+Since EuroparlExtract itself does not contain any corpus data but only corpus extraction scripts, you first need to download the original Europarl release. If you have already downloaded the Europarl corpus from http://www.statmt.org/europarl and placed the source files in the EuroparlExtract folder, you can go to the [next step](#preprocess-europarl-source-files) . Otherwise, do the following:
 
 ```shell
 cd europarl-extract-0.9
