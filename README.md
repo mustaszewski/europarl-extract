@@ -176,7 +176,7 @@ All extracted corpora are licensed unter the CC BY 4.0 license.
 
 ## Third-party software
 
-EuroparlExtract uses the following third-party:
+EuroparlExtract uses the following third-party software:
 
 * A customisation of [ixa-pipe-tok](https://github.com/ixa-ehu/ixa-pipe-tok) by Rodrigo Agerri for sentence splitting and tokenisation.
 * The [Europarl Preprocessing Tools](http://www.statmt.org/europarl) by Philipp Koehn for sentence splitting and tokenisation.
@@ -189,8 +189,10 @@ EuroparlExtract uses the following third-party:
 
 
 ## Contact
+````
 Michael Ustaszewski
 University of Innsbruck
 Department for Translation Studies
 A-6020 Innsbruck
 Austria
+````
