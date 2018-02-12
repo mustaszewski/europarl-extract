@@ -69,7 +69,7 @@ python3 disambiguate_speaker_IDs.py txt/
 
 For the extraction of **sentence-aligned parallel corpora, sentence segmentation is a required** pre-processing step, whereas in the case of comparable corpora sentence segmentation is not required (albeit useful for future analyses). Tokenisation is optional for both comparable and parallel corpora and therefore depends on end users' needs.
 
-EuroparlExtract supports **two different third-party tools** users can choose from 1) *ixa-pipe-tok*, a sentence splitter and tokeniser implemented in Java by Rodrigo Agerri (see http://ixa2.si.ehu.es/ixa-pipes); or 2) the sentence splitter and tokeniser of the *Europarl Preprocessing Tools* implemented in Perl by Philipp Koehn (see http://www.statmt.org/europarl). The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
+EuroparlExtract comes with **two different third-party tools** users can choose from: 1) *ixa-pipe-tok*, a sentence splitter and tokeniser implemented in Java; or 2) the sentence splitter and tokeniser of the *Europarl Preprocessing Tools* implemented in Perl. The former is more accurate but considerably slower that the latter, so users should choose one of the tools according to their own preferences.
 
 To perform sentence segmentation without tokenisation using *Europarl Preprocessing Tools*, run:
 
@@ -98,10 +98,10 @@ For segmentation and subsequent tokenisation using *ixa-pipe-tok*, run:
 
 ## Extract Corpora
 
-After preprocessing, the Europarl source files are ready for the extraction process calling the main script `extract.py` with either the `parallel` or `comparable` subcommand.
+After preprocessing the Europarl source files, the extraction can be performed by calling the main script `extract.py` with either the `parallel` or `comparable` subcommand.
 
 ### a) Parallel Corpora
-Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language directions, the script extracts all available bitexts from the Europarl source files and saves them to a dedicated folder indicating the language direction. From the 21 Europarl languages, users may choose any language pair, including an option to extract all 420 language pairs in one go. To extract parallel corpora, the following arguments need to be specified (see also help message `python3 extract.py parallel --help`):
+Parallel corpora consist of unidirectional pairs of source and target texts (= parallel texts, bitexts). For each of the selected language directions, the script extracts all available bitexts from the Europarl source files and saves them to a dedicated folder indicating the language direction. From the 21 Europarl languages, users may choose any language combination, including an option to extract all 420 parallel corpora in one go. To extract parallel corpora, the following arguments need to be specified (see also help message `python3 extract.py parallel --help`):
 
 - `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py parallel --help`. Note: you may also choose `all` source languages.
 - `-tl [target_language ...]`: Choose one or more target language(s), separated by blanks. For a list of supported languages, display the help message by calling `python3 extract.py parallel --help`. Note: you may also choose `all` target languages.
@@ -109,11 +109,11 @@ Parallel corpora consist of unidirectional pairs of source and target texts (= p
 - `-o <output_folder>`: Path to output folder where subfolders for each language direction will be created.
 - `-f [txt|tab|tmx ...]`: Choose one or more output format(s), separated by blanks. `txt` creates non-aligned separate source and target text files (see sample [source](https://github.com/mustaszewski/europarl-extract/blob/master/documentation/sample_outputfiles/parallel_en_sl.txt) and [target file](https://github.com/mustaszewski/europarl-extract/blob/master/documentation/sample_outputfiles/parallel_de_tl.txt)), `tab` creates sentence-aligned files where each line contains corrsponding source and target segments separated by tabulator (see [sample file](https://github.com/mustaszewski/europarl-extract/blob/master/documentation/sample_outputfiles/parallel_en-de.tab)), `tmx` creates sentence-aligned TMX files (see [sample file](https://github.com/mustaszewski/europarl-extract/blob/master/documentation/sample_outputfiles/parallel_en-de.tmx)).
 - `-s <statement_file>`: Optional argument to supply a precompiled statement list (CSV format) rather than creating the list from Europarl source files from scratch (**recommended** - extremly speeds up the extraction process!) The list can be found in the folder [corpora/](https://github.com/mustaszewski/europarl-extract/tree/master/corpora) of the EuroparlExtract distribution.
-- `-al`: Optional argument to disseminate parenthesised language tags across source files (**recommended** - largely increases number of statements!)
-- `-c {lang|speaker|both}`: Optional argument to remove parenthesised language identifier and/or speaker metadata tags from output files.
+- `-al`: Optional argument to disseminate parenthesised language tags across source files (**recommended** - largely increases number of extractable statements!)
+- `-c {lang|speaker|both}`: Optional argument to remove parenthesised language identifiers and/or speaker metadata tags from output files.
 - `-d`: Optional argument to create a log file for debugging (not recommended - use only in case of problems).
 
-Example:
+**Example:**
 
 ```shell
 python3 extract.py parallel -sl PL BG -tl all -i txt/ -o corpora/ -f txt tab -s corpora/europarl_statements.csv -al -c both
@@ -124,18 +124,18 @@ python3 extract.py parallel -sl PL BG -tl all -i txt/ -o corpora/ -f txt tab -s 
 
 ### b) Comparable Corpora
 
-Contrary to parallel corpora, comparable corpora consist of individual monolingual files in the choosen language(s) rather than of bilingual source-target text pairs. In comparable corpora, two sections can be distinguished: one containing only texts originally produced in a given language (e.g. non-translated English), and one containing only texts that have been translated into a given language (e.g. translated English). The latter can be further subdivided according to source languages (e.g. English texts translated from Polish, English texts translated from German ...). Note that no source texts are stored in the translated section of comparable corpora, i.e. only the target side of each language combination is extracted, while information about the source language is only used as metadata. To extract comparable corpora, the following arguments need to be specified (see also help message `python3 extract.py comparable --help`):
+Contrary to parallel corpora, comparable corpora consist of individual monolingual files in the choosen language(s) rather than of bilingual source-target text pairs. In comparable corpora, two sections can be distinguished: one containing only texts originally produced in a given language (e.g. non-translated English), and one containing only texts that have been translated into a given language (e.g. translated English). The latter can be further subdivided according to source languages (e.g. English texts translated from Polish, English texts translated from German ...). Note that no source texts are stored in the translated section of comparable corpora, i.e. only the target side of each language combination is extracted, while source language information is only used as metadata. To extract comparable corpora, the following arguments need to be specified (see also help message `python3 extract.py comparable --help`):
 
 - `-sl [source_language ...]`: Choose one or more source language(s), separated by blanks. For a list of supported language codes, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose `all` source languages.
 - `-tl [target_language ...]`: Choose one or more target language(s), separated by blanks. For a list of supported languages, display the help message by calling `python3 extract.py comparable --help`. Note: you may also choose `all` target languages.
 - `-i <input_folder>`:  Path to input folder containing Europarl source files, usually txt/.
 - `-o <output_folder>`: Path to output folder where subfolders for each language pair will be created.
 - `-s <statement_file>`: Optional argument to supply a precompiled statement list (CSV format) rather than creating the list from Europarl source files from scratch (**recommended** - extremly speeds up the extraction process!) The list can be found in the folder [corpora/](https://github.com/mustaszewski/europarl-extract/tree/master/corpora) of the EuroparlExtract distribution.
-- `-al`: Optional argument to disseminate parenthesised language tags across source files (**recommended** - largely increases number of statements!)
-- `-c {lang|speaker|both}`: Optional argument to remove parenthesised language identifier and/or speaker metadata tags from output files.
+- `-al`: Optional argument to disseminate parenthesised language tags across source files (**recommended** - largely increases number of extractable statements!)
+- `-c {lang|speaker|both}`: Optional argument to remove parenthesised language identifiers and/or speaker metadata tags from output files.
 - `-d`: Optional argument to create a log file for debugging (not recommended - use only in case of problems).
 
-Example:
+**Example:**
 
 ```shell
 python3 extract.py comparable -sl all -tl PL BG -i txt/ -o corpora/ -s corpora/europarl_statements.csv -al -c speaker
@@ -185,7 +185,7 @@ EuroparlExtract uses the following third-party software:
 
 ## Credits
 
-* [Europarl-direct](http://www.idiap.ch/dataset/europarl-direct) is a similar project that aims to extract subcorpora from Europarl. I would like to thank one of its authors, Thomas Meyer, for providing me with insights into the underlying extraction method.
+* [Europarl-direct](http://www.idiap.ch/dataset/europarl-direct) is a similar project for the extraction of subcorpora from Europarl. I would like to thank one of its authors, Thomas Meyer, for providing me with insights into the underlying extraction method.
 
 
 ## Contact
