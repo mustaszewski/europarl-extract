@@ -148,6 +148,10 @@ python3 extract.py comparable -sl all -tl PL BG -i txt/ -o corpora/ -s corpora/e
 
 # Further information
 
+## System Documentation and Evaluation
+For a detailed description and evaluation of the extraction procedure, please refer to the [associated paper](#citation).
+
+
 ## Performance
 The script extract.py is not speed-optimised. Therfore, the first part of the extraction step may take several hours, depending on the CPU used. However, the proces can be speeded up extremely if the precompiled list of Europarl statements (see corpora/ folder of this package) is provided to the script. To do so, specify the path of the list via the `-s` parameter. Using the precompiled list, the extraction of the corpora of your choice should take only between a few minutes and up to one hour, depending on your CPU and the amount of text to be extracted. 
 
@@ -173,6 +177,14 @@ EuroparlExtract is free software licensed under the MIT License - see the [LICEN
 
 All extracted corpora are licensed unter the CC BY 4.0 license.
 
+
+## Citation
+
+If you use EuroparlExtract or the corpora derived from it in your work, please cite the following paper (open access):
+
+>
+>Ustaszewski, Michael (2018): Optimising the Europarl corpus for translation studies with the EuroparlExtract toolkit. In: *Perspectives - Studies in Translation Theory and Practice*, DOI: [10.1080/0907676X.2018.1485716](https://doi.org/10.1080/0907676X.2018.1485716)
+>
 
 ## Third-party software
 
