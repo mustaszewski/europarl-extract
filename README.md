@@ -183,7 +183,7 @@ All extracted corpora are licensed unter the CC BY 4.0 license.
 If you use EuroparlExtract or the corpora derived from it in your work, please cite the following paper (open access):
 
 >
->Ustaszewski, Michael (2018): Optimising the Europarl corpus for translation studies with the EuroparlExtract toolkit. In: *Perspectives - Studies in Translation Theory and Practice*, DOI: [10.1080/0907676X.2018.1485716](https://doi.org/10.1080/0907676X.2018.1485716)
+>Ustaszewski, Michael (2018): Optimising the Europarl corpus for translation studies with the EuroparlExtract toolkit. In: *Perspectives - Studies in Translation Theory and Practice* 27:1, p. 107-123. DOI: [10.1080/0907676X.2018.1485716](https://doi.org/10.1080/0907676X.2018.1485716)
 >
 
 ## Third-party software
